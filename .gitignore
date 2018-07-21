@@ -1,0 +1,4 @@
+**/.idea
+**/node_modules
+asteroid-client/build
+asteroid-server/dist
