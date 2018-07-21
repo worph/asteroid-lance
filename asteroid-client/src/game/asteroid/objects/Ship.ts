@@ -10,6 +10,7 @@ export class Ship extends Phaser.GameObjects.Graphics {
     private shootKey: Phaser.Input.Keyboard.Key;
     private isShooting: boolean;
     private nextBulletNumber: number = 0;
+    private callBack:(string:string) => void = string => {};
 
     public getBullets(): { [id: string]: Bullet; } {
         return this.bullets;
@@ -47,6 +48,10 @@ export class Ship extends Phaser.GameObjects.Graphics {
         this.body.setOffset(-CONST.SHIP_SIZE, -CONST.SHIP_SIZE);
 
         this.currentScene.add.existing(this);
+    }
+
+    onBulletCreated(callBack:(string:string) => void):void{
+        this.callBack = callBack;
     }
 
     private initShip(): void {
@@ -141,6 +146,7 @@ export class Ship extends Phaser.GameObjects.Graphics {
                 y: y,
                 rotation: rotation
             },bulletid,this.id);
+        this.callBack(bulletid);
     }
 
     private recoil(): void {
@@ -155,7 +161,7 @@ export class Ship extends Phaser.GameObjects.Graphics {
         this.velocity.add(force);
     }
 
-    private updateBullets(): void {
+    public updateBullets(): void {
         Object.keys(this.bullets).forEach(key => {
             let bullet = this.bullets[key];
             if (bullet.active) {

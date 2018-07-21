@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Asteroid_1 = require("../objects/Asteroid");
 const Ship_1 = require("../objects/Ship");
-const const_1 = require("../const/const");
 const NetworkAssets_1 = require("../service/NetworkAssets");
 const NetworkGameManager_1 = require("../service/NetworkGameManager");
 class GameScene extends Phaser.Scene {
@@ -39,11 +38,15 @@ class GameScene extends Phaser.Scene {
             pid: bullet.parentShipId,
             x: bullet.x,
             y: bullet.y,
+            vx: bullet.velocity.x,
+            vy: bullet.velocity.y,
             r: bullet.rotation,
         };
     }
     updateBulletFromNetworkPayload(bullet, payload) {
         bullet.setPosition(payload.x, payload.y);
+        bullet.velocity.x = payload.vx;
+        bullet.velocity.y = payload.vy;
         bullet.setRotation(payload.r);
     }
     bootBroadcasterService() {
@@ -101,14 +104,15 @@ class GameScene extends Phaser.Scene {
                 //we also receive position of local player as percieved by the other => but we don't care
             }
             if (asset.id.startsWith("bullet/")) {
-                let id = asset.pid;
+                console.error("unsupported");
+                //too much network load => disabled
+                /*let id = asset.pid;
                 if (this.player.id !== id) {
                     let ship = this.otherPlayer[id];
-                    this.updateBulletFromNetworkPayload(ship.getBullets()[asset.id], asset); //TODO refactoring deeded djv
-                }
-                else {
+                    this.updateBulletFromNetworkPayload(ship.getBullets()[asset.id], asset);//TODO refactoring deeded djv
+                } else {
                     console.error("local player updated");
-                }
+                }*/
             }
         });
         this.broadcasterService.start("http://127.0.0.1:8085/broadcaster");
@@ -175,6 +179,9 @@ class GameScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, worldBoundX, worldBoundY, true, true, true, true);
         let currentPlayerId = "player/" + this.makeid(64);
         this.player = new Ship_1.Ship({ scene: this, opt: {} }, currentPlayerId, true);
+        this.player.onBulletCreated(id => {
+            this.broadcasterService.createOrUpdateAsset(this.createNetworkPayloadFromBullet(this.player.getBullets()[id]));
+        });
         this.cameras.main.startFollow(this.player); //  Set the camera bounds to be the size of the image
         this.cameras.main.setBounds(0, 0, worldBoundX, worldBoundY);
         this.otherPlayer = {};
@@ -195,19 +202,22 @@ class GameScene extends Phaser.Scene {
         this.broadcasterService.updateAsset(this.createNetworkPayloadFromPlayer(ship));
         this.broadcasterService.setPause(true);
         this.networkAssetSynchronizer.setPause(true);
+        // update distant player bullet
+        Object.keys(this.otherPlayer).forEach(key => {
+            this.otherPlayer[key].updateBullets();
+        });
         // check collision between asteroids and bullets
         Object.keys(this.asteroids).forEach((key) => {
             let asteroid = this.asteroids[key];
             this.networkAssetSynchronizer.updateAsset(this.createNetworkPayloadFromAsteroid(asteroid));
             Object.keys(ship.getBullets()).forEach(bkey => {
                 let bullet = ship.getBullets()[bkey];
-                this.broadcasterService.createOrUpdateAsset(this.createNetworkPayloadFromBullet(bullet));
                 if (asteroid.getBody() != undefined) {
                     if (Phaser.Geom.Intersects.RectangleToRectangle(bullet.getBody(), asteroid.getBody())) {
                         this.networkAssetSynchronizer.deleteAsset(this.createNetworkPayloadFromAsteroid(asteroid));
                         this.asteroids[asteroid.id].destroy();
                         delete this.asteroids[asteroid.id];
-                        this.updateScore(asteroid.getSize());
+                        this.networkGameManager.updateScore(asteroid.id, this.player.id, asteroid.getSize());
                     }
                 }
             });
@@ -223,22 +233,6 @@ class GameScene extends Phaser.Scene {
         });
         this.broadcasterService.setPause(false);
         this.networkAssetSynchronizer.setPause(false);
-    }
-    //TODO migrate computation to server
-    updateScore(aSizeOfAsteroid) {
-        switch (aSizeOfAsteroid) {
-            case 3:
-                this.score += 20;
-                break;
-            case 2:
-                this.score += 50;
-                break;
-            case 1:
-                this.score += 100;
-                break;
-        }
-        const_1.CONST.SCORE = this.score;
-        this.bitmapTexts[0].text = "" + this.score;
     }
 }
 exports.GameScene = GameScene;

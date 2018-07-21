@@ -9,7 +9,7 @@ class NetworkAssets {
         this.queueEvent = [];
     }
     start(url) {
-        this.socket = SocketIO(url, { forceNew: true });
+        this.socket = SocketIO(url, { forceNew: false });
         this.socket.on(Asset_1.ASSET_EVENT.INIT, (initPayload) => {
             this.assets = {};
             Object.keys(initPayload.assets).forEach(id => {

@@ -12,7 +12,7 @@ export default class NetworkAssets {
 
 
     start(url: string) {
-        this.socket = SocketIO(url, { forceNew: true });
+        this.socket = SocketIO(url, { forceNew: false });
 
         this.socket.on(ASSET_EVENT.INIT, (initPayload:any) => {
             this.assets = {};

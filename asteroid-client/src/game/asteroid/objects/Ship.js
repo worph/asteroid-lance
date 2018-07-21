@@ -8,6 +8,7 @@ class Ship extends Phaser.GameObjects.Graphics {
         this.id = id;
         this.keyboardControlled = keyboardControlled;
         this.nextBulletNumber = 0;
+        this.callBack = string => { };
         // variables
         this.currentScene = params.scene;
         this.bullets = {};
@@ -33,6 +34,9 @@ class Ship extends Phaser.GameObjects.Graphics {
     }
     getBody() {
         return this.body;
+    }
+    onBulletCreated(callBack) {
+        this.callBack = callBack;
     }
     initShip() {
         // define ship properties
@@ -104,6 +108,7 @@ class Ship extends Phaser.GameObjects.Graphics {
                 y: y,
                 rotation: rotation
             }, bulletid, this.id);
+        this.callBack(bulletid);
     }
     recoil() {
         // create the force in the correct direction

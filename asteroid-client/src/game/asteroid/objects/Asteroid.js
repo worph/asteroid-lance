@@ -5,7 +5,6 @@ class Asteroid extends Phaser.GameObjects.Graphics {
     constructor(params, id) {
         super(params.scene, params);
         this.id = id;
-        console.log(this.body);
         // variables
         this.currentScene = params.scene;
         this.numberOfSides = 12;

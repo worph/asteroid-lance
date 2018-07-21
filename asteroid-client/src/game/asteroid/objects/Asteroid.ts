@@ -17,7 +17,6 @@ export class Asteroid extends Phaser.GameObjects.Graphics {
 
     constructor(params,public id:string) {
         super(params.scene, params);
-        console.log(this.body);
 
         // variables
         this.currentScene = params.scene;

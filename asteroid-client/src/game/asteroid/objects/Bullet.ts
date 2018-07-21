@@ -2,7 +2,7 @@ export class Bullet extends Phaser.GameObjects.Graphics {
     private colors: number[];
     private selectedColor: number;
     private currentScene: Phaser.Scene;
-    private velocity: Phaser.Math.Vector2;
+    public velocity: Phaser.Math.Vector2;
     private lifeSpan: number;
     private isOffScreen: boolean;
 
