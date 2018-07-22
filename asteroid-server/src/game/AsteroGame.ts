@@ -7,8 +7,14 @@ import {NetPlayerShip} from "./NetPlayerShip";
 import * as SocketIO from "socket.io";
 import * as express from 'express';
 
-export default class AsteroGame {
+interface NVMFormat{
+    scores:{ [id: string]: number; }
+}
 
+export default class AsteroGame {
+    nvm:NVMFormat = {
+        scores:{}
+    };
     playerShip: { [id: string]: NetPlayerShip; } = {};
     asteroids: { [id: string]: Asteroid; } = {};
     private numberOfAsteroids: number = 3;
@@ -18,6 +24,112 @@ export default class AsteroGame {
     distributedAssetLocator: DistributedAssetsLocator;
     io: SocketIO.Server;
     private expressApp: any;
+    static readonly PLAYERSHIP_NOTIFY:string = "playership";
+
+    start(io: SocketIO.Server, expressApp: any, distributedAssetLocator: DistributedAssetsLocator, broadcastService: BroadcasterService) {
+        this.io = io.of('/asteroid');
+        this.expressApp = expressApp;
+
+        //////////////////////////////////////////////////////////
+        this.distributedAssetLocator = distributedAssetLocator;
+        distributedAssetLocator.on(ASSET_EVENT.DELETED, (asset: Asset) => {
+            console.log("delete => " + asset.id);
+            if (asset.id.startsWith("asteroid/")) {
+                if (this.asteroids[asset.id] == undefined) {
+                    console.error("undefined id");
+                } else {
+                    let asteroid = this.asteroids[asset.id];
+                    asteroid.x = asset.value[0];
+                    asteroid.y = asset.value[1];
+                    this.spawnMiniAsteroidsOnDestruction(asteroid);
+                    delete this.asteroids[asset.id];
+                }
+            }
+        });
+
+        /////////////////////////////////////////////
+        //Set up socket listener
+        /////////////////////////////////////////////
+        this.io.on('connection', (socket) => {
+            console.log('a user connected: ', socket.id);
+
+            // when a player disconnects, remove them from our players object
+            socket.on(AsteroGame.PLAYERSHIP_NOTIFY, (data:{id:string,name:string}) => {
+                this.nvm.scores[data.name]=0;
+                this.playerShip[socket.id] = new NetPlayerShip(data.id,data.name);
+            });
+
+            // when a player disconnects, remove them from our players object
+            socket.on('disconnect', () => {
+                console.log('user disconnected: ', socket.id);
+                if (this.playerShip[socket.id] != undefined) {
+                    distributedAssetLocator.deleteAsset({id: this.playerShip[socket.id].id, value: []}, undefined);
+                    broadcastService.deleteAsset({
+                        id: this.playerShip[socket.id].id
+                    }, undefined);
+                    delete this.playerShip[socket.id];
+                }
+            });
+        });
+
+        ///////////////////////////////////////////////////
+        //Setup game REST API
+        ///////////////////////////////////////////////////
+        const router = express.Router();
+        router.get('/info', (req, res) => {
+            res.json({
+                game: 'Asteroid!',
+                numberOfAsteroids: this.numberOfAsteroids,
+                worldSizeX: this.worldSizeX,
+                worldSizeY: this.worldSizeY,
+                stepTimeMs: this.stepTimeMs,
+            })
+        });
+        router.get('/players', (req, res) => {
+            res.json(this.playerShip)
+        });
+        router.get('/scores', (req, res) => {
+            res.json(this.nvm.scores)
+        });
+
+        router.get('/notify_score', (req, res) => {
+            let asteroid = req.query.asteroid;
+            let asteroidsize = req.query.asteroidsize;
+            let player = req.query.player;
+            Object.keys(this.playerShip).forEach(key => {
+                let playerShip: NetPlayerShip = this.playerShip[key];
+                //store score in NVM
+                if (playerShip.id === player) {
+                    switch (asteroidsize) {
+                        case '3':
+                            this.nvm.scores[playerShip.name] += 20;
+                            break;
+                        case '2':
+                            this.nvm.scores[playerShip.name] += 50;
+                            break;
+                        case '1':
+                            this.nvm.scores[playerShip.name] += 100;
+                            break;
+                    }
+                    //network notify score
+                    this.io.emit("score",{id:playerShip.id,data:this.nvm.scores[playerShip.name]});
+
+                }
+            });
+            res.json({
+                ok: 'ok',
+            })
+        });
+        this.expressApp.use('/asteroid-game', router);
+
+        /////////////////////////////////////////////
+        //set up main update
+        /////////////////////////////////////////////
+        setInterval(() => {
+            this.update()
+        }, this.stepTimeMs);
+        this.update();
+    }
 
     update(): void {
         //console.log(Object.keys(this.asteroids));
@@ -71,98 +183,5 @@ export default class AsteroGame {
                 }, undefined);
             }
         }
-    }
-
-    start(io: SocketIO.Server, expressApp: any, distributedAssetLocator: DistributedAssetsLocator, broadcastService: BroadcasterService) {
-        this.io = io.of('/asteroid');
-        this.expressApp = expressApp;
-        this.distributedAssetLocator = distributedAssetLocator;
-        distributedAssetLocator.on(ASSET_EVENT.DELETED, (asset: Asset) => {
-            console.log("delete => " + asset.id);
-            if (asset.id.startsWith("asteroid/")) {
-                if (this.asteroids[asset.id] == undefined) {
-                    console.error("undefined id");
-                } else {
-                    let asteroid = this.asteroids[asset.id];
-                    asteroid.x = asset.value[0];
-                    asteroid.y = asset.value[1];
-                    this.spawnMiniAsteroidsOnDestruction(asteroid);
-                    delete this.asteroids[asset.id];
-                }
-            }
-        });
-
-        this.io.on('connection', (socket) => {
-            console.log('a user connected: ', socket.id);
-
-            // when a player disconnects, remove them from our players object
-            socket.on('playership', (data) => {
-                this.playerShip[socket.id] = new NetPlayerShip(data);
-            });
-
-            // when a player disconnects, remove them from our players object
-            socket.on('disconnect', () => {
-                console.log('user disconnected: ', socket.id);
-                if (this.playerShip[socket.id] != undefined) {
-                    distributedAssetLocator.deleteAsset({id: this.playerShip[socket.id].id, value: []}, undefined);
-                    broadcastService.deleteAsset({
-                        id: this.playerShip[socket.id].id
-                    }, undefined);
-                    delete this.playerShip[socket.id];
-                }
-            });
-        });
-
-        const router = express.Router();
-        router.get('/info', (req, res) => {
-            res.json({
-                game: 'Asteroid!',
-                numberOfAsteroids: this.numberOfAsteroids,
-                worldSizeX: this.worldSizeX,
-                worldSizeY: this.worldSizeY,
-                stepTimeMs: this.stepTimeMs,
-            })
-        });
-        router.get('/players', (req, res) => {
-            let ret = {}
-            Object.keys(this.playerShip).forEach(key => {
-                let netPlayerShip = this.playerShip[key];
-                ret[netPlayerShip.id]=netPlayerShip;
-            });
-            res.json(ret)
-        });
-
-        router.get('/notify_score', (req, res) => {
-            let asteroid = req.query.asteroid;
-            let asteroidsize = req.query.asteroidsize;
-            let player = req.query.player;
-            Object.keys(this.playerShip).forEach(key => {
-                let playerShip: NetPlayerShip = this.playerShip[key];
-                if (playerShip.id === player) {
-                    switch (asteroidsize) {
-                        case '3':
-                            playerShip.score += 20;
-                            break;
-                        case '2':
-                            playerShip.score += 50;
-                            break;
-                        case '1':
-                            playerShip.score += 100;
-                            break;
-                    }
-                    this.io.emit("score",{id:playerShip.id,data:playerShip});
-                }
-            });
-            res.json({
-                ok: 'ok',
-            })
-        });
-        this.expressApp.use('/asteroid-game', router)
-
-        //set up main update
-        setInterval(() => {
-            this.update()
-        }, this.stepTimeMs);
-        this.update();
     }
 }

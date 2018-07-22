@@ -1,11 +1,12 @@
 import {Asteroid} from "../objects/Asteroid";
 import {Bullet} from "../objects/Bullet";
 import {Ship} from "../objects/Ship";
-import {CONST} from "../const/const";
 import NetworkAssets from "../service/NetworkAssets";
 import NetworkGameManager from "../service/NetworkGameManager";
 import {Asset} from "../service/Asset";
 import {phaserService} from "../../phaser/PhaserService";
+
+declare var window:any;
 
 export class GameScene extends Phaser.Scene {
     private player: Ship;
@@ -157,6 +158,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     updateAsteroidFromNetworkPayload(asteroid: Asteroid, payload: Asset): void {
+        if(asteroid==undefined){
+            console.error("undefined asteroid")
+            return;
+        }
         asteroid.x = payload.value[0];
         asteroid.y = payload.value[1];
         asteroid.rotation = (payload.value[2]);//why no physic for this
@@ -197,6 +202,20 @@ export class GameScene extends Phaser.Scene {
     }
 
     create(): void {
+
+        ///register input
+        this.input.on('pointermove', (pointer) =>{
+            let x2 = pointer.x;
+            let y2 = pointer.y;
+            let x1 = this.player.x;
+            let y1 = this.player.y;
+            let deltaX = x2 - x1;
+            let deltaY = y2 - y1;
+            let rad = Math.atan2(deltaY, deltaX); // In radians
+            this.player.body.rotation = rad;
+            console.log(rad);
+        }, this);
+
         let parameters = phaserService.parameters;
         console.log("parameters : ",parameters);
         let worldBoundX = 1920;
@@ -226,7 +245,7 @@ export class GameScene extends Phaser.Scene {
         this.bootBroadcasterService();
         this.bootNetworkAssetSynchronizer();
         {
-            this.networkGameManager.start("http://127.0.0.1:8085/asteroid", currentPlayerId);
+            this.networkGameManager.start("http://127.0.0.1:8085/asteroid","http://127.0.0.1:8085", currentPlayerId,parameters.name);
         }
     }
 

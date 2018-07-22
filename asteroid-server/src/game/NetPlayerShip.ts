@@ -1,9 +1,10 @@
 
 export class NetPlayerShip {
     id:string;
-    score:number=0;
+    name:string;
 
-    constructor(id: string) {
+    constructor(id: string, name: string) {
         this.id = id;
+        this.name = name;
     }
 }

@@ -1,4 +1,3 @@
-import {CONST} from "../const/const";
 
 export class MainMenuScene extends Phaser.Scene {
     private startKey: Phaser.Input.Keyboard.Key;
@@ -39,7 +38,7 @@ export class MainMenuScene extends Phaser.Scene {
             this.add.text(
                 this.sys.canvas.width / 2 - 150,
                 this.sys.canvas.height / 2 + 80,
-                "HIGHSCORE: " + CONST.HIGHSCORE,
+                "HIGHSCORE: " + 0,
                 {fontSize: '32px', fill: '#FFFFFF'}
             )
         );

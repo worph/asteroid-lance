@@ -10,10 +10,18 @@ import {CSSProperties} from "react";
 import Button from "@material-ui/core/Button/Button";
 import {Menu} from "@material-ui/icons";
 import Drawer from "@material-ui/core/Drawer/Drawer";
+import axios, {AxiosInstance} from "axios";
+import Typography from "@material-ui/core/Typography/Typography";
+import List from "@material-ui/core/List/List";
+import ListItem from "@material-ui/core/ListItem/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon/ListItemIcon";
+import StarIcon from '@material-ui/icons/Star';
+import Chip from "@material-ui/core/Chip/Chip";
 
 interface State {
     open: boolean;
-    overlayStyle: CSSProperties
+    overlayStyle: CSSProperties;
+    scores:{};
 }
 
 class AsteroidGame extends React.Component<any, State> {
@@ -25,13 +33,16 @@ class AsteroidGame extends React.Component<any, State> {
             top: "150px",
             width: "150px",
             height: "150px"
-        }
+        },
+        scores:{}
     };
     private game: Game;
     private config: GameConfig;
     private canvaName = 'game';
+    private httpClient: AxiosInstance;
 
     componentDidMount() {
+        this.httpClient = axios.create();
         setTimeout(() => {
             let elementById = document.getElementById(this.canvaName);
             let offsetWidth = elementById.offsetWidth;//window.innerWidth,
@@ -79,13 +90,40 @@ class AsteroidGame extends React.Component<any, State> {
         this.game.destroy(true);
     }
 
+    update(){
+        this.httpClient.get('http://127.0.0.1:8085/asteroid-game/scores').then(response => {
+            let data = response.data;
+            this.setState({scores:data});
+        });
+    }
+
     public render() {
         return (<div>
                 <div id={this.canvaName}></div>
                 <div id="caneva-overlay" style={this.state.overlayStyle}>
                     <Drawer open={this.state.open}
-                            onClose={()=>{this.setState({open:false})}}>
-                        Hello
+                            onClose={()=>{this.setState({open:false})}}
+                            style={{maxWidth:"50%",wordBreak: "break-all"}}
+                    >
+                        <Typography component="h1">
+
+                        </Typography>
+                        <Chip
+                            style={{margin:"20px"}}
+                            label={"Hello "+ phaserService.parameters.name}
+                        />
+                        <Typography>
+                            <List>
+                                <ListItem>Scores</ListItem>
+                        {Object.keys(this.state.scores).map(key => {
+                            let score = this.state.scores[key];
+                            return <ListItem>
+                                <ListItemIcon>
+                                    <StarIcon />
+                                </ListItemIcon>{key + " : " +score}</ListItem>;
+                        })}
+                            </List>
+                        </Typography>
                     </Drawer>
                     <div style={{position: 'relative'}}>
                         <Button
@@ -95,7 +133,7 @@ class AsteroidGame extends React.Component<any, State> {
                                 right: "10px",
                             }}
                             variant="fab"
-                            onClick={()=>{this.setState({open:true})}}
+                            onClick={()=>{this.setState({open:true});this.update();}}
                         ><Menu/></Button>
                     </div></div>
             </div>

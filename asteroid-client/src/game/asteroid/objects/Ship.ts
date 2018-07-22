@@ -1,6 +1,9 @@
 import {Bullet} from "./Bullet";
-import {CONST} from "../const/const";
-import {Identified} from "../service/Asset";
+
+let CONST = {
+    SHIP_SIZE: 20,
+    LIVES: 3,
+};
 
 export class Ship extends Phaser.GameObjects.Graphics {
     private currentScene: Phaser.Scene;
