@@ -1,27 +1,30 @@
 {
-  "name": "rphstudio-asteroid",
-  "version": "1.2.1",
-  "description": "rphstudio-asteroid",
-  "keywords": [
-    "rphstudio"
-  ],
-  "devDependencies": {
-    "expose-loader": "0.7.5",
-    "ts-loader": "4.4.2",
-    "typescript": "2.9.2",
-    "webpack": "4.15.0",
-    "webpack-cli": "3.0.8",
-    "webpack-dev-server": "3.1.4"
-  },
+  "name": "asteroid-client",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
-    "@types/socket.io-client": "^1.4.32",
+    "@material-ui/core": "^1.0.0",
+    "@material-ui/icons": "^1.0.0",
+    "react-router-dom": "^4.2.2",
     "axios": "^0.18.0",
-    "phaser": "3.10.1",
+    "phaser": "^3.11.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-scripts-ts": "2.16.0",
     "socket.io-client": "^2.1.1"
   },
   "scripts": {
-    "dev": "webpack --mode development && webpack-dev-server --mode development",
-    "prod": "webpack --mode production && webpack-dev-server --mode production",
-    "build": "webpack --mode production"
+    "dev": "react-scripts-ts start",
+    "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.0",
+    "@types/node": "^10.5.2",
+    "@types/react": "^16.4.6",
+    "@types/react-dom": "^16.0.6",
+    "typescript": "^2.9.2"
   }
 }

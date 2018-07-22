@@ -1,0 +1,27 @@
+.App-logo {
+    animation: App-logo-spin infinite 20s linear;
+    height: 80px;
+}
+
+.fullSpace {
+    width: stretch;
+    height: stretch;
+}
+
+.mainFrame{
+    background-color: #161c23;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.playButtonFrame{
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.playButton{
+    flex: 1 1 auto;
+}

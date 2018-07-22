@@ -5,7 +5,7 @@ import {CONST} from "../const/const";
 import NetworkAssets from "../service/NetworkAssets";
 import NetworkGameManager from "../service/NetworkGameManager";
 import {Asset} from "../service/Asset";
-import {game} from "../game";
+import {phaserService} from "../../phaser/PhaserService";
 
 export class GameScene extends Phaser.Scene {
     private player: Ship;
@@ -23,6 +23,10 @@ export class GameScene extends Phaser.Scene {
         super({
             key: "GameScene"
         });
+    }
+
+    preload(): void {
+        this.load.image('background','/assets/tests/debug-grid-1920x1920.png');
     }
 
     makeid(length: number) {
@@ -193,6 +197,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     create(): void {
+        let parameters = phaserService.parameters;
+        console.log("parameters : ",parameters);
         let worldBoundX = 1920;
         let worldBoundY = 1920;
         this.add.sprite(worldBoundX/2, worldBoundY/2, 'background');
@@ -222,6 +228,10 @@ export class GameScene extends Phaser.Scene {
         {
             this.networkGameManager.start("http://127.0.0.1:8085/asteroid", currentPlayerId);
         }
+    }
+
+    destroy(){
+        console.log("destroyed");
     }
 
     update(): void {

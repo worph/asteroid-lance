@@ -16,10 +16,6 @@ export class MainMenuScene extends Phaser.Scene {
         );
     }
 
-    preload(): void {
-        this.load.image('background','assets/tests/debug-grid-1920x1920.png');
-    }
-
     create(): void {
         this.bitmapTexts.push(
             this.add.text(
