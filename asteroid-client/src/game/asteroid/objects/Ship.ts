@@ -14,6 +14,7 @@ export class Ship extends Phaser.GameObjects.Graphics {
     private isShooting: boolean;
     private nextBulletNumber: number = 0;
     private callBack:(string:string) => void = string => {};
+    private boostMode: boolean = false;
 
     public getBullets(): { [id: string]: Bullet; } {
         return this.bullets;
@@ -77,6 +78,9 @@ export class Ship extends Phaser.GameObjects.Graphics {
     }
 
     update(): void {
+        if(this.boostMode){
+            this.boost();
+        }
         if (this.active) {
             if (this.keyboardControlled) {
                 this.handleInput();
@@ -111,7 +115,7 @@ export class Ship extends Phaser.GameObjects.Graphics {
         }
     }
 
-    private boost(): void {
+    public boost(): void {
         // create the force in the correct direction
         let force = new Phaser.Math.Vector2(
             Math.cos(this.rotation - Math.PI / 2),
@@ -132,7 +136,7 @@ export class Ship extends Phaser.GameObjects.Graphics {
         this.velocity.scale(0.98);
     }
 
-    private shoot(): void {
+    public shoot(): void {
         this.createBullet("bullet/" + this.nextBulletNumber + "-" + this.id,this.x, this.y, this.rotation);
     }
 
@@ -173,5 +177,9 @@ export class Ship extends Phaser.GameObjects.Graphics {
                 this.deleteBullet(key);
             }
         });
+    }
+
+    setBoost(b: boolean) {
+        this.boostMode = b;
     }
 }

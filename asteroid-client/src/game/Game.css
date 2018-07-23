@@ -5,6 +5,14 @@ canvas {
   /* <https://caniuse.com/#feat=object-fit> */
 }
 
+.pointerOn{
+    pointer-events: auto;
+}
+
+.pointerOff{
+    pointer-events: none;
+}
+
 #game{
     min-width:100%;
     min-height: 100%;

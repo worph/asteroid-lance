@@ -67,9 +67,9 @@ class AsteroidGame extends React.Component<any, State> {
                 scene: [BootScene, MainMenuScene, GameScene],
                 input: {
                     keyboard: true,
-                    mouse: false,
-                    touch: false,
-                    gamepad: false
+                    mouse: true,
+                    touch: true,
+                    gamepad: true
                 },
                 physics: {
                     default: "arcade",
@@ -99,8 +99,7 @@ class AsteroidGame extends React.Component<any, State> {
 
     public render() {
         return (<div>
-                <div id={this.canvaName}></div>
-                <div id="caneva-overlay" style={this.state.overlayStyle}>
+                <div id="caneva-overlay" className="pointerOff" style={this.state.overlayStyle}>
                     <Drawer open={this.state.open}
                             onClose={()=>{this.setState({open:false})}}
                             style={{maxWidth:"50%",wordBreak: "break-all"}}
@@ -115,18 +114,19 @@ class AsteroidGame extends React.Component<any, State> {
                         <Typography>
                             <List>
                                 <ListItem>Scores</ListItem>
-                        {Object.keys(this.state.scores).map(key => {
-                            let score = this.state.scores[key];
-                            return <ListItem>
-                                <ListItemIcon>
-                                    <StarIcon />
-                                </ListItemIcon>{key + " : " +score}</ListItem>;
-                        })}
+                                {Object.keys(this.state.scores).map(key => {
+                                    let score = this.state.scores[key];
+                                    return <ListItem>
+                                        <ListItemIcon>
+                                            <StarIcon />
+                                        </ListItemIcon>{key + " : " +score}</ListItem>;
+                                })}
                             </List>
                         </Typography>
                     </Drawer>
                     <div style={{position: 'relative'}}>
                         <Button
+                            className="pointerOn"
                             style={{
                                 position: 'absolute',
                                 top: "10px",
@@ -136,6 +136,7 @@ class AsteroidGame extends React.Component<any, State> {
                             onClick={()=>{this.setState({open:true});this.update();}}
                         ><Menu/></Button>
                     </div></div>
+                <div id={this.canvaName}></div>
             </div>
         );
     }

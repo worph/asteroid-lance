@@ -74,7 +74,7 @@ export class GameScene extends Phaser.Scene {
         bullet.setRotation(payload.r);
     }
 
-    bootBroadcasterService() {
+    bootBroadcasterService(apiServerAdd: any) {
         this.broadcasterService.onAssetCreatedCallback(asset => {
             if (asset.id.startsWith("player/")) {
                 if (this.player.id !== asset.id) {
@@ -136,7 +136,7 @@ export class GameScene extends Phaser.Scene {
                 }*/
             }
         });
-        this.broadcasterService.start("http://127.0.0.1:8085/broadcaster");
+        this.broadcasterService.start(apiServerAdd+"/broadcaster");
         this.broadcasterService.createAsset(this.createNetworkPayloadFromPlayer(this.player));
     }
 
@@ -171,9 +171,7 @@ export class GameScene extends Phaser.Scene {
         asteroid.getBody().setAngularVelocity(payload.value[8]);
     }
 
-    bootNetworkAssetSynchronizer() {
-
-        {
+    bootNetworkAssetSynchronizer(apiServerAdd: string) {
             this.networkAssetSynchronizer.onAssetCreatedCallback(asset => {
                 if (asset.id.startsWith("asteroid/")) {
                     console.log("network asteroid created : " + asset.id);
@@ -197,24 +195,37 @@ export class GameScene extends Phaser.Scene {
                     this.updateAsteroidFromNetworkPayload(this.asteroids[asset.id], asset);
                 }
             });
-            this.networkAssetSynchronizer.start("http://127.0.0.1:8085/distributed");
-        }
+            this.networkAssetSynchronizer.start(apiServerAdd+"/distributed");
     }
 
     create(): void {
-
+        let apiServerAdd="http://127.0.0.1:8085";
         ///register input
-        this.input.on('pointermove', (pointer) =>{
-            let x2 = pointer.x;
-            let y2 = pointer.y;
+        //https://hammerjs.github.io/
+        console.log(this.scene.systems.canvas.height)
+        let fc = (pointer) =>{
+            let worldPoint = this.cameras.main.getWorldPoint(pointer.x,pointer.y);
+            let x2 = worldPoint.x;
+            let y2 = worldPoint.y;
             let x1 = this.player.x;
             let y1 = this.player.y;
+
+            //let x1 = (this.scene.systems.canvas.width/2) - this.cameras.main.followOffset.x;
+            //let y1 = (this.scene.systems.canvas.height/2) - this.cameras.main.getfollowOffset.y;
+            //console.log(x2+"/"+y2+"/"+x1+"/"+y1)
             let deltaX = x2 - x1;
             let deltaY = y2 - y1;
             let rad = Math.atan2(deltaY, deltaX); // In radians
-            this.player.body.rotation = rad;
-            console.log(rad);
+            this.player.rotation = rad+(Math.PI/2.0);
+        };
+        this.input.on('pointerdown', ()=>{
+            this.player.setBoost(true);
+            this.player.shoot();
         }, this);
+        this.input.on('pointerup', ()=>{
+            this.player.setBoost(false);
+        }, this);
+        this.input.on('pointermove', fc, this);
 
         let parameters = phaserService.parameters;
         console.log("parameters : ",parameters);
@@ -242,10 +253,10 @@ export class GameScene extends Phaser.Scene {
             )
         );
         this.gotHit = false;
-        this.bootBroadcasterService();
-        this.bootNetworkAssetSynchronizer();
+        this.bootBroadcasterService(apiServerAdd);
+        this.bootNetworkAssetSynchronizer(apiServerAdd);
         {
-            this.networkGameManager.start("http://127.0.0.1:8085/asteroid","http://127.0.0.1:8085", currentPlayerId,parameters.name);
+            this.networkGameManager.start(apiServerAdd+"/asteroid",apiServerAdd, currentPlayerId,parameters.name);
         }
     }
 
