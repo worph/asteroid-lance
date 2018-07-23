@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+  webserver-rphstudio-asteroid-server:
+    image: registry.admin.rphstudio.net/rphstudio-asteroid-server
+    networks:
+      - webtraefik
+    expose:
+      - "8085"
+    labels:
+      - "traefik.backend=webserver-rphstudio-asteroid-server"
+      - "traefik.docker.network=webtraefik"
+      - "traefik.enable=true"
+      - "traefik.port=8085"
+      - "traefik.frontend.entryPoints=http"
+      - "traefik.frontend.rule=Host:asteroidserver.game.rphstudio.net"
+
+networks:
+  webtraefik:
+    external: true
