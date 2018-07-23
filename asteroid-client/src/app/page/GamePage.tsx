@@ -16,7 +16,11 @@ export default class GamePage extends Component<{
         url:"/meme/toto"}*/
         let player = match.params.player;
         player = decodeURIComponent(player);
-        phaserService.parameters = {name:player}
+        phaserService.parameters = {
+            name: player,
+            //apiServer: "http://127.0.0.1:8085"
+            apiServer:"http://asteroidserver.game.rphstudio.net"
+        }
     }
 
     render() {

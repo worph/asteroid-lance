@@ -199,10 +199,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     create(): void {
-        let apiServerAdd="http://127.0.0.1:8085";
         ///register input
         //https://hammerjs.github.io/
-        console.log(this.scene.systems.canvas.height)
         let fc = (pointer) =>{
             let worldPoint = this.cameras.main.getWorldPoint(pointer.x,pointer.y);
             let x2 = worldPoint.x;
@@ -229,6 +227,7 @@ export class GameScene extends Phaser.Scene {
 
         let parameters = phaserService.parameters;
         console.log("parameters : ",parameters);
+        let apiServerAdd=parameters.apiServer;
         let worldBoundX = 1920;
         let worldBoundY = 1920;
         this.add.sprite(worldBoundX/2, worldBoundY/2, 'background');
