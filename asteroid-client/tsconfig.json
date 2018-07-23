@@ -19,6 +19,7 @@
     "noUnusedLocals": false
   },
   "exclude": [
+    "docker",
     "node_modules",
     "build",
     "scripts",
