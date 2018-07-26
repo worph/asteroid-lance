@@ -2,3 +2,4 @@
 **/node_modules
 asteroid-client/build
 asteroid-server/dist
+/asteroid-client/docker/www

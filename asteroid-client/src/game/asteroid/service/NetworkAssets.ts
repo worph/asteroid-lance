@@ -58,7 +58,6 @@ export default class NetworkAssets {
         this.assetDeletedCallback(asset);
     }
 
-
     setPause(pause: boolean) {
         if (!pause) {
             this.queueEvent.forEach(value => {

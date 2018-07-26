@@ -33,29 +33,31 @@ export class Asteroid extends Phaser.GameObjects.Graphics {
         return this.radius;
     }
 
-    public getBody(): any {
+    public getBody():  Phaser.Physics.Matter.Image {
         return this.body;
     }
 
-    constructor(params,public id:string) {
-        super(params.scene, params);
+    constructor(params:GraphicsParam,public id:string,x:number,y:number,size:number) {
+        super(params.scene, params.opt);
 
         // variables
         this.currentScene = params.scene;
         this.numberOfSides = 12;
         this.asteroidRadius = 0;
-        this.sizeOfAsteroid = params.size;
+        this.sizeOfAsteroid = size;
 
         // init ship
-        this.initAsteroid(params.x, params.y, this.sizeOfAsteroid);
+        this.initAsteroid(x, y, this.sizeOfAsteroid);
 
         // physics
-        this.currentScene.physics.world.enable(this);
-        this.body.setCollideWorldBounds(true);
+        this.currentScene.matter.add.gameObject(this,{ shape: { type: 'circle', radius: this.asteroidRadius } });
+        //this.currentScene.physics.world.enable(this);
+        /*this.body.setCollideWorldBounds(true);
         this.body.setBounce(1);
         this.body.allowGravity = false;
         this.body.setCircle(this.asteroidRadius);
-        this.body.setOffset(-this.asteroidRadius, -this.asteroidRadius);
+        this.body.setOffset(-this.asteroidRadius, -this.asteroidRadius);*/
+        this.body.set
 
         this.currentScene.add.existing(this);
     }

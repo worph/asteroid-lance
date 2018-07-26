@@ -24,7 +24,7 @@ export class Ship extends Phaser.GameObjects.Graphics {
         return this.body;
     }
 
-    constructor(params, public id: string, public keyboardControlled: boolean) {
+    constructor(params:GraphicsParam, public id: string, public keyboardControlled: boolean) {
         super(params.scene, params.opt);
 
         // variables
@@ -44,12 +44,12 @@ export class Ship extends Phaser.GameObjects.Graphics {
         }
 
         // physics
-        this.currentScene.physics.world.enable(this);
-        this.body.setCollideWorldBounds(true);
+        let body = this.currentScene.matter.add.gameObject(this,{ shape: { type: 'circle', radius: CONST.SHIP_SIZE*1.5 } });
+        /*this.body.setCollideWorldBounds(true);
         this.body.setBounce(1);
         this.body.allowGravity = false;
         this.body.setSize(CONST.SHIP_SIZE * 2, CONST.SHIP_SIZE * 2);
-        this.body.setOffset(-CONST.SHIP_SIZE, -CONST.SHIP_SIZE);
+        this.body.setOffset(-CONST.SHIP_SIZE, -CONST.SHIP_SIZE);*/
 
         this.currentScene.add.existing(this);
     }
@@ -148,11 +148,7 @@ export class Ship extends Phaser.GameObjects.Graphics {
     createBullet(bulletid:string, x: number, y: number, rotation: number) {
         this.nextBulletNumber++;
         this.bullets[bulletid] =
-            new Bullet(this.currentScene, {
-                x: x,
-                y: y,
-                rotation: rotation
-            },bulletid,this.id);
+            new Bullet({scene:this.currentScene,opt:{}},x,y,rotation,bulletid,this.id);
         this.callBack(bulletid);
     }
 

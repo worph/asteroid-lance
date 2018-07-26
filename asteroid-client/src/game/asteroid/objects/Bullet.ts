@@ -6,12 +6,13 @@ export class Bullet extends Phaser.GameObjects.Graphics {
     private lifeSpan: number;
     private isOffScreen: boolean;
 
-    public getBody(): any {
-        return this.body;
+    public getBody():  Phaser.Physics.Matter.Image {
+        let ret : any = this;
+        return ret;
     }
 
-    constructor(scene, params,public id:string,public parentShipId:string) {
-        super(scene, params);
+    constructor(params:GraphicsParam,x:number,y:number,rotation:number,public id:string,public parentShipId:string) {
+        super(params.scene, params.opt);
 
         // variables
         this.colors = [];
@@ -20,16 +21,16 @@ export class Bullet extends Phaser.GameObjects.Graphics {
         this.colors.push(0xe08639);
         let rndColor = Phaser.Math.RND.between(0, 2);
         this.selectedColor = this.colors[rndColor];
-        this.currentScene = scene;
+        this.currentScene = params.scene;
         this.lifeSpan = 100;
         this.isOffScreen = false;
 
         // init bullet
-        this.x = params.x;
-        this.y = params.y;
+        this.x = x;
+        this.y = y;
         this.velocity = new Phaser.Math.Vector2(
-            15 * Math.cos(params.rotation - Math.PI / 2),
-            15 * Math.sin(params.rotation - Math.PI / 2)
+            15 * Math.cos(rotation - Math.PI / 2),
+            15 * Math.sin(rotation - Math.PI / 2)
         );
 
         // define bullet graphics and draw it
@@ -37,18 +38,16 @@ export class Bullet extends Phaser.GameObjects.Graphics {
         this.fillCircle(0, 0, 3);
 
         // physics
-        this.currentScene.physics.world.enable(this);
-        this.body.allowGravity = false;
+        this.currentScene.matter.add.gameObject(this,{ shape: { type: 'circle', radius: 3 } });
+        /*this.body.allowGravity = false;
         this.body.setCircle(3);
-        this.body.setOffset(-3, -3);
+        this.body.setOffset(-3, -3);*/
         this.currentScene.add.existing(this);
+        this.getBody().setVelocity(this.velocity.x,this.velocity.y);
     }
 
-    update(): void {
-        // apple velocity to position
-        this.x += this.velocity.x;
-        this.y += this.velocity.y;
 
+    update(): void {
         if (this.lifeSpan < 0) {
             this.setActive(false);
         } else {

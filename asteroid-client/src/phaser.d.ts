@@ -1,3 +1,7 @@
+declare interface GraphicsParam{
+    scene:Phaser.Scene,opt:any
+}
+
 declare type CallCallback = (item: Phaser.GameObjects.GameObject)=>void;
 
 declare type GridAlignConfig = {

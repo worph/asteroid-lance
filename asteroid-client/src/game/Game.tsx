@@ -72,10 +72,14 @@ class AsteroidGame extends React.Component<any, State> {
                     gamepad: true
                 },
                 physics: {
-                    default: "arcade",
-                    arcade: {
-                        debug: false
-                    }
+                    default: "matter",
+                    matter: {
+                        debug: true,
+                        gravity: {
+                            x : 0.0,
+                            y: 0.0
+                        },
+                    },
                 },
                 backgroundColor: "#000000",
                 pixelArt: false,
@@ -91,7 +95,7 @@ class AsteroidGame extends React.Component<any, State> {
     }
 
     update(){
-        this.httpClient.get('http://127.0.0.1:8085/asteroid-game/scores').then(response => {
+        this.httpClient.get(phaserService.parameters.apiServer+'/asteroid-game/scores').then(response => {
             let data = response.data;
             this.setState({scores:data});
         });
