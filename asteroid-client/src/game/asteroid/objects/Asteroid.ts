@@ -1,3 +1,5 @@
+import {Identified} from "../service/Asset";
+
 let CONST = {
     ASTEROID_COUNT: 3,
     ASTEROID: {
@@ -22,12 +24,13 @@ let CONST = {
     }
 };
 
-export class Asteroid extends Phaser.GameObjects.Graphics {
+export class Asteroid extends Phaser.GameObjects.Graphics implements Identified{
     private currentScene: Phaser.Scene;
     private radius: number;
     private asteroidRadius: number;
     private sizeOfAsteroid: number;
     private numberOfSides: number;
+    public static ID_PREFIX:string = "asteroid/";
 
     public getRadius(): number {
         return this.radius;
@@ -39,7 +42,9 @@ export class Asteroid extends Phaser.GameObjects.Graphics {
 
     constructor(params:GraphicsParam,public id:string,x:number,y:number,size:number) {
         super(params.scene, params.opt);
-
+        if(!this.id.startsWith(Asteroid.ID_PREFIX)){
+            throw new Error();
+        }
         // variables
         this.currentScene = params.scene;
         this.numberOfSides = 12;

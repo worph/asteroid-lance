@@ -1,11 +1,12 @@
 import {Bullet} from "./Bullet";
+import {Identified} from "../service/Asset";
 
 let CONST = {
     SHIP_SIZE: 20,
     LIVES: 3,
 };
 
-export class Ship extends Phaser.GameObjects.Graphics {
+export class Ship extends Phaser.GameObjects.Graphics implements Identified{
     private currentScene: Phaser.Scene;
     private velocity: Phaser.Math.Vector2;
     private cursors: any;

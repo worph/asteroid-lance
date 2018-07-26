@@ -3,6 +3,8 @@ import {phaserService} from "../../phaser/PhaserService";
 import {NetworkGameStates} from "../game/NetworkGameStates";
 import {PhysicService} from "../service/PhysicService";
 import {idService} from "../service/IDService";
+import {Identified} from "../service/Asset";
+import {Asteroid} from "../objects/Asteroid";
 
 declare var window:any;
 
@@ -24,7 +26,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     create(): void {
-
+        this.physicService = new PhysicService(this.matter);
         let parameters = phaserService.parameters;
         console.log("parameters : ",parameters);
         let apiServerAdd=parameters.apiServer;
@@ -68,8 +70,18 @@ export class GameScene extends Phaser.Scene {
 
         this.networkGameState = new NetworkGameStates(this,apiServerAdd,new Ship({scene: this, opt: {}}, "player/" + idService.makeid(64), true),parameters.name);
         this.networkGameState.player.onBulletCreated(id => {
-            this.networkGameState.broadcasterService.createOrUpdateAsset(this.networkGameState.createNetworkPayloadFromBullet(this.networkGameState.player.getBullets()[id]));
-
+            let bullet = this.networkGameState.player.getBullets()[id];
+            this.networkGameState.broadcasterService.createOrUpdateAsset(this.networkGameState.createNetworkPayloadFromBullet(bullet));
+            //TODO /!\ very important memory leak => off this event
+            this.physicService.eventEmitter.on(bullet.id,(body:Identified)=>{
+                if(body.id.startsWith(Asteroid.ID_PREFIX)){
+                    let asteroid = body as Asteroid;
+                    this.networkGameState.networkAssetSynchronizer.deleteAsset(this.networkGameState.createNetworkPayloadFromAsteroid(asteroid));
+                    this.networkGameState.asteroids[asteroid.id].destroy();
+                    delete this.networkGameState.asteroids[asteroid.id];
+                    this.networkGameState.networkGameManager.updateScore(asteroid.id,this.networkGameState.player.id,asteroid.getSize());
+                }
+            })
         });
         this.cameras.main.startFollow(this.networkGameState.player);    //  Set the camera bounds to be the size of the image
         this.score = 0;

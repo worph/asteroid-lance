@@ -1,4 +1,6 @@
-export class Bullet extends Phaser.GameObjects.Graphics {
+import {Identified} from "../service/Asset";
+
+export class Bullet extends Phaser.GameObjects.Graphics implements Identified {
     private colors: number[];
     private selectedColor: number;
     private currentScene: Phaser.Scene;
