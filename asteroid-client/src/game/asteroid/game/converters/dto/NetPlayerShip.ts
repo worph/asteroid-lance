@@ -1,4 +1,4 @@
-import {Identified} from "../service/network/Asset";
+import {Identified} from "../../../service/network/Asset";
 
 export class NetPlayerShip implements Identified{
     id:string;

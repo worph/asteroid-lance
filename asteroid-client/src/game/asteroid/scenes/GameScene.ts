@@ -1,15 +1,15 @@
 import {Ship} from "../objects/Ship";
-import {phaserService} from "../../phaser/PhaserService";
+import {phaserReactService} from "../../phaser/PhaserReactService";
 import {NetworkGameStates} from "../game/NetworkGameStates";
 import {PhysicService} from "../service/PhysicService";
 import {idService} from "../service/IDService";
 import {Identified} from "../service/network/Asset";
 import {Asteroid} from "../objects/Asteroid";
+import {Bullet} from "../objects/Bullet";
 
 declare var window: any;
 
 export class GameScene extends Phaser.Scene {
-    private score: number;
     private fps: Phaser.GameObjects.Text;
     private networkGameState: NetworkGameStates;
     private physicService: PhysicService;
@@ -27,7 +27,7 @@ export class GameScene extends Phaser.Scene {
 
     create(): void {
         this.physicService = new PhysicService(this.matter);
-        let parameters = phaserService.parameters;
+        let parameters = phaserReactService.parameters;
         console.log("parameters : ", parameters);
         let apiServerAdd = parameters.apiServer;
 
@@ -76,6 +76,12 @@ export class GameScene extends Phaser.Scene {
             let bullet = this.networkGameState.player.getBullets()[id];
             this.networkGameState.createOrUpdateAsset(bullet);
             //TODO /!\ very important memory leak => off this event
+            this.physicService.eventEmitter.on(this.networkGameState.player.id, (body: Identified) => {
+                //you tutch something (except bullet) => you die
+                if (body.id.startsWith(Bullet.ID_PREFIX)) {
+                    this.networkGameState.networkGameManager.notifyEndGame(this.networkGameState.player.id);
+                }
+            });
             this.physicService.eventEmitter.on(bullet.id, (body: Identified) => {
                 if (body.id !== this.networkGameState.player.id) {
                     if (body.id.startsWith(Asteroid.ID_PREFIX)) {
@@ -91,10 +97,9 @@ export class GameScene extends Phaser.Scene {
                     this.networkGameState.player.getBullets()[id].destroy();
                     delete this.networkGameState.player.getBullets()[id];
                 }
-            })
+            });
         });
-        this.cameras.main.startFollow(this.networkGameState.player);    //  Set the camera bounds to be the size of the image
-        this.score = 0;
+        this.cameras.main.startFollow(this.networkGameState.player,true, 0.05, 0.05);    //  Set the camera bounds to be the size of the image
         this.fps = this.add.text(
             this.sys.canvas.width / 2,
             40,

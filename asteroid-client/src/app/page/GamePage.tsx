@@ -1,7 +1,7 @@
 import {Component} from 'react'
 import * as React from 'react'
 import AsteroidGame from "../../game/Game";
-import {phaserService} from "../../game/phaser/PhaserService";
+import {phaserReactService} from "../../game/phaser/PhaserReactService";
 
 export default class GamePage extends Component<{
     match: any,
@@ -16,7 +16,7 @@ export default class GamePage extends Component<{
         url:"/meme/toto"}*/
         let player = match.params.player;
         player = decodeURIComponent(player);
-        phaserService.parameters = {
+        phaserReactService.parameters = {
             name: player,
             apiServer: "http://127.0.0.1:8085"
             //apiServer:"http://asteroidserver.game.rphstudio.net"

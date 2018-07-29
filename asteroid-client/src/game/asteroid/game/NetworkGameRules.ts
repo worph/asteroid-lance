@@ -1,8 +1,9 @@
 import * as SocketIO from "socket.io-client";
 import axios, {AxiosInstance} from 'axios'
-import {NetPlayerShip} from "./NetPlayerShip";
+import {NetPlayerShip} from "./converters/dto/NetPlayerShip";
+import {phaserReactService} from "../../phaser/PhaserReactService";
 
-export default class NetworkGameManager {
+export default class NetworkGameRules {
     private socket: any;
     private httpClient: AxiosInstance;
     netPlayers: { [id: string]: NetPlayerShip; } = {};
@@ -27,6 +28,22 @@ export default class NetworkGameManager {
         this.socket.emit("playership", {
             id: currentPlayerId,
             name: currentPlayerName
+        });
+    }
+
+    /**
+     *
+     * @param {string} playerId asset id
+     */
+    public notifyEndGame(playerId:string){
+        this.httpClient.get(this.apiUrl+'/notify_end_game', {
+            params: {
+                player: playerId
+            }
+        }).then(response => {
+            let data = response.data;
+            phaserReactService.parameters.end = data;
+            phaserReactService.eventEmitter.emit("redirect","/loser")
         });
     }
 

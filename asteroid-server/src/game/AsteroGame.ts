@@ -2,39 +2,43 @@ import DistributedAssetsLocator from "../service/DistributedAssetsLocator";
 import BroadcasterService from "../service/BroadcasterService";
 import {Asset, ASSET_EVENT} from "../service/Asset";
 import {Asteroid} from "./Asteroid";
-import {NetPlayerShip} from "./NetPlayerShip";
+import {NetPlayerShip} from "./converters/dto/NetPlayerShip";
 
 import * as SocketIO from "socket.io";
 import * as express from 'express';
-import {AsteroidPayloadConverter} from "./AsteroidPayloadConverter";
+import {AsteroidPayloadConverter} from "./converters/AsteroidPayloadConverter";
+import {BulletPayLoad} from "./converters/dto/BulletPayLoad";
+import {ShipPayload} from "./converters/dto/ShipPayload";
 
-interface NVMFormat{
-    scores:{ [id: string]: number; }
+interface NVMFormat {
+    scores: { [id: string]: number; }
 }
 
 export default class AsteroGame {
-    nvm:NVMFormat = {
-        scores:{}
+    nvm: NVMFormat = {
+        scores: {}
     };
-    playerShip: { [id: string]: NetPlayerShip; } = {};
-    asteroids: { [id: string]: Asteroid; } = {};
+    playerShip: { [id: string]: NetPlayerShip; } = {}; // id => socket.id
+    asteroids: { [id: string]: Asteroid; } = {}; // id => asteroid asset id
 
     private numberOfAsteroids: number = 3;
     private worldSizeX: number = 1920;
     private worldSizeY: number = 1920;
     stepTimeMs: number = 1000;//millisecond
     distributedAssetLocator: DistributedAssetsLocator;
+    private broadcastService: BroadcasterService;
     io: SocketIO.Server;
     private expressApp: any;
-    static readonly PLAYERSHIP_NOTIFY:string = "playership";
-    public asteroidPayloadConverter:AsteroidPayloadConverter = new AsteroidPayloadConverter();
+    static readonly PLAYERSHIP_NOTIFY: string = "playership";
+    public asteroidPayloadConverter: AsteroidPayloadConverter = new AsteroidPayloadConverter();
 
     start(io: SocketIO.Server, expressApp: any, distributedAssetLocator: DistributedAssetsLocator, broadcastService: BroadcasterService) {
         this.io = io.of('/asteroid');
         this.expressApp = expressApp;
+        this.distributedAssetLocator = distributedAssetLocator;
+        this.broadcastService = broadcastService;
 
         //////////////////////////////////////////////////////////
-        this.distributedAssetLocator = distributedAssetLocator;
         distributedAssetLocator.on(ASSET_EVENT.DELETED, (asset: Asset) => {
             console.log("delete => " + asset.id);
             if (asset.id.startsWith("asteroid/")) {
@@ -55,11 +59,11 @@ export default class AsteroGame {
         /////////////////////////////////////////////
         this.io.on('connection', (socket) => {
             console.log('a user connected: ', socket.id);
+            this.removeOrphanBullet();
 
             // when a player disconnects, remove them from our players object
-            socket.on(AsteroGame.PLAYERSHIP_NOTIFY, (data:{id:string,name:string}) => {
-                this.nvm.scores[data.name]=0;
-                this.playerShip[socket.id] = new NetPlayerShip(data.id,data.name);
+            socket.on(AsteroGame.PLAYERSHIP_NOTIFY, (data: { id: string, name: string }) => {
+                this.playerShip[socket.id] = new NetPlayerShip(data.id, data.name);
             });
 
             // when a player disconnects, remove them from our players object
@@ -71,6 +75,7 @@ export default class AsteroGame {
                         id: this.playerShip[socket.id].id
                     }, undefined);
                     delete this.playerShip[socket.id];
+                    this.removeOrphanBullet();
                 }
             });
         });
@@ -92,7 +97,37 @@ export default class AsteroGame {
             res.json(this.playerShip)
         });
         router.get('/scores', (req, res) => {
+            let ret = {};
+            Object.keys(this.playerShip).forEach(key => {
+                let playerShip: NetPlayerShip = this.playerShip[key];
+                ret[playerShip.name] = playerShip.currentScore;
+            });
+            res.json(ret)
+        });
+        router.get('/highscores', (req, res) => {
             res.json(this.nvm.scores)
+        });
+
+        router.get('/notify_end_game', (req, res) => {
+            let playerId = req.query.player;
+            let result: any = {}
+            Object.keys(this.playerShip).forEach(key => {
+                let playerShip: NetPlayerShip = this.playerShip[key];
+                //store score in NVM
+                if (playerShip.id === playerId) {
+                    if (this.nvm.scores[playerShip.name] == undefined) {
+                        this.nvm.scores[playerShip.name] = 0;
+                    }
+                    let highScore = (playerShip.currentScore > this.nvm.scores[playerShip.name]) && playerShip.currentScore!==0;
+                    if (highScore) {
+                        this.nvm.scores[playerShip.name] = playerShip.currentScore;
+                    }
+                    result.currentScore = playerShip.currentScore;
+                    result.highScore = this.nvm.scores[playerShip.name];
+                    result.isHighScore = highScore;
+                }
+            });
+            res.json(result)
         });
 
         router.get('/notify_score', (req, res) => {
@@ -105,17 +140,17 @@ export default class AsteroGame {
                 if (playerShip.id === player) {
                     switch (asteroidsize) {
                         case '3':
-                            this.nvm.scores[playerShip.name] += 20;
+                            playerShip.currentScore += 20;
                             break;
                         case '2':
-                            this.nvm.scores[playerShip.name] += 50;
+                            playerShip.currentScore += 50;
                             break;
                         case '1':
-                            this.nvm.scores[playerShip.name] += 100;
+                            playerShip.currentScore += 100;
                             break;
                     }
                     //network notify score
-                    this.io.emit("score",{id:playerShip.id,data:this.nvm.scores[playerShip.name]});
+                    this.io.emit("score", {id: playerShip.id, data: playerShip.currentScore});
 
                 }
             });
@@ -132,6 +167,53 @@ export default class AsteroGame {
             this.update()
         }, this.stepTimeMs);
         this.update();
+    }
+
+
+    removeOrphanBullet() {
+        //clean up player ship
+        Object.keys(this.playerShip).forEach(playerShipSocketId => {
+            if (Object.keys(this.io.connected).indexOf(playerShipSocketId) == -1) {
+                console.log("removed orphan : ", this.playerShip[playerShipSocketId]);
+                delete this.playerShip[playerShipSocketId];
+            }
+        });
+        //clean up assets
+        Object.keys(this.broadcastService.assets).forEach(id => {
+            //remove orphan ship
+            let identified = this.broadcastService.assets[id];
+            if (identified.id.startsWith("player/")) {
+                let shipPayload = identified as ShipPayload;
+                let found = false;
+                Object.keys(this.playerShip).forEach(playerShipSocketId => {
+                    if (shipPayload.id == this.playerShip[playerShipSocketId].id) {
+                        found = true;
+                    }
+                });
+                if (!found) {
+                    console.log("removed orphan : ", identified);
+                    this.broadcastService.deleteAsset(identified, undefined);
+                }
+            }
+            //remove orphan bullet
+            if (identified.id.startsWith("bullet/")) {
+                let bulletPayload = identified as BulletPayLoad;
+                let playerId = bulletPayload.pid;
+                let found = false;
+                Object.keys(this.playerShip).forEach(playerShipSocketId => {
+                    let netPlayerShip = this.playerShip[playerShipSocketId];
+                    if (netPlayerShip.id === playerId) {
+                        found = true;
+                        return true;//break some
+                    }
+                    return false;
+                });
+                if (!found) {
+                    console.log("removed orphan : ", identified);
+                    this.broadcastService.deleteAsset(identified, undefined);
+                }
+            }
+        });
     }
 
     update(): void {
@@ -165,20 +247,20 @@ export default class AsteroGame {
                 let y = aY;
                 if (x === undefined) {
                     x = Math.floor(Math.random() * this.worldSizeX);
-                }else{
+                } else {
                     //random around
-                    x = Math.floor(Math.random() * aSize) + aX - aSize/2;
+                    x = Math.floor(Math.random() * aSize) + aX - aSize / 2;
                 }
                 if (y == undefined) {
                     y = Math.floor(Math.random() * this.worldSizeY);
-                }else{
+                } else {
                     //random around
-                    y = Math.floor(Math.random() * aSize) + aY - aSize/2;
+                    y = Math.floor(Math.random() * aSize) + aY - aSize / 2;
                 }
                 let asteroid = new Asteroid(x, y, aSize);
                 asteroid.velocityX = Math.random(), //velocity X;
-                asteroid.velocityY = Math.random(), //velocity X;
-                this.asteroids[asteroid.id] = asteroid;
+                    asteroid.velocityY = Math.random(), //velocity X;
+                    this.asteroids[asteroid.id] = asteroid;
                 this.distributedAssetLocator.createAsset(this.asteroidPayloadConverter.createNetworkPayloadFromAsteroid(asteroid), undefined);
             }
         }

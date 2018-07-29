@@ -8,6 +8,7 @@ import createMuiTheme from "@material-ui/core/styles/createMuiTheme";
 import AsteroidGame from "../game/Game";
 import HomePage from "./page/HomePage";
 import GamePage from "./page/GamePage";
+import LosePage from "./page/LosePage";
 
 class App extends React.Component {
     render() {
@@ -23,6 +24,7 @@ class App extends React.Component {
                     <div className="fullSpace">
                         <Switch className="fullSpace">
                             <Route exact path='/' component={HomePage}/>
+                            <Route exact path='/loser' component={LosePage}/>
                             <Route exact path='/game/:player' component={GamePage}/>
                         </Switch>
                     </div>

@@ -1,5 +1,5 @@
-import {Asteroid} from "./Asteroid";
-import {Asset} from "../service/Asset";
+import {Asteroid} from "../Asteroid";
+import {Asset} from "../../service/Asset";
 
 export class AsteroidPayloadConverter {
 

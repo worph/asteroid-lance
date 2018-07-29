@@ -1,11 +1,10 @@
 import * as React from 'react';
 import './Game.css';
-import {Game} from "./phaser/Game";
 import {BootScene} from "./asteroid/scenes/BootScene";
 import {MainMenuScene} from "./asteroid/scenes/MainMenuScene";
 import {GameScene} from "./asteroid/scenes/GameScene";
 import Scene = Phaser.Scene;
-import {phaserService} from "./phaser/PhaserService";
+import {phaserReactService} from "./phaser/PhaserReactService";
 import {CSSProperties} from "react";
 import Button from "@material-ui/core/Button/Button";
 import {Menu} from "@material-ui/icons";
@@ -17,8 +16,10 @@ import ListItem from "@material-ui/core/ListItem/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon/ListItemIcon";
 import StarIcon from '@material-ui/icons/Star';
 import Chip from "@material-ui/core/Chip/Chip";
+import { Redirect } from 'react-router-dom'
 
 interface State {
+    redirectTo: string;
     open: boolean;
     overlayStyle: CSSProperties;
     scores:{};
@@ -26,6 +27,7 @@ interface State {
 
 class AsteroidGame extends React.Component<any, State> {
     state: State = {
+        redirectTo:"",
         open:false,
         overlayStyle: {
             position: "absolute",
@@ -36,12 +38,16 @@ class AsteroidGame extends React.Component<any, State> {
         },
         scores:{}
     };
-    private game: Game;
+    private game: Phaser.Game;
     private config: GameConfig;
     private canvaName = 'game';
     private httpClient: AxiosInstance;
 
     componentDidMount() {
+
+        phaserReactService.eventEmitter.on("redirect",url => {
+            this.setState({redirectTo:url});
+        });
         this.httpClient = axios.create();
         setTimeout(() => {
             let elementById = document.getElementById(this.canvaName);
@@ -85,24 +91,31 @@ class AsteroidGame extends React.Component<any, State> {
                 pixelArt: false,
                 antialias: true
             };
-            this.game = new Game(this.config);
+            this.game = new Phaser.Game(this.config);
         }, 0);
     }
 
     componentWillUnmount() {
-        phaserService.destroy();
+        phaserReactService.destroy();
         this.game.destroy(true);
     }
 
     update(){
-        this.httpClient.get(phaserService.parameters.apiServer+'/asteroid-game/scores').then(response => {
+        this.httpClient.get(phaserReactService.parameters.apiServer+'/asteroid-game/highscores').then(response => {
             let data = response.data;
             this.setState({scores:data});
         });
     }
 
+    renderRedirect = () => {
+        if (this.state.redirectTo!=="") {
+            return <Redirect to={this.state.redirectTo} />
+        }
+    };
+
     public render() {
         return (<div>
+                {this.renderRedirect()}
                 <div id="caneva-overlay" className="pointerOff" style={this.state.overlayStyle}>
                     <Drawer open={this.state.open}
                             onClose={()=>{this.setState({open:false})}}
@@ -113,10 +126,10 @@ class AsteroidGame extends React.Component<any, State> {
                         </Typography>
                         <Chip
                             style={{margin:"20px"}}
-                            label={"Hello "+ phaserService.parameters.name}
+                            label={"Hello "+ phaserReactService.parameters.name}
                         />
                         <Typography component="div"> <List>
-                                <ListItem>Scores</ListItem>
+                                <ListItem>High Scores</ListItem>
                                 {Object.keys(this.state.scores).map(key => {
                                     let score = this.state.scores[key];
                                     return <ListItem key={key}>

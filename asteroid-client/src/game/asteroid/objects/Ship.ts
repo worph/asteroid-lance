@@ -8,7 +8,6 @@ let CONST = {
 
 export class Ship extends Phaser.GameObjects.Graphics implements Identified{
     private currentScene: Phaser.Scene;
-    private velocity: Phaser.Math.Vector2;
     private cursors: any;
     private bullets: { [id: string]: Bullet; };
     private shootKey: Phaser.Input.Keyboard.Key;
@@ -16,13 +15,15 @@ export class Ship extends Phaser.GameObjects.Graphics implements Identified{
     private nextBulletNumber: number = 0;
     private callBack:(string:string) => void = string => {};
     private boostMode: boolean = false;
+    static readonly ID_PREFIX: string = "ship/";
 
     public getBullets(): { [id: string]: Bullet; } {
         return this.bullets;
     }
 
-    public getBody(): any {
-        return this.body;
+    public getBody():  Phaser.Physics.Matter.Image {
+        let ret : any = this;
+        return ret;
     }
 
     constructor(params:GraphicsParam, public id: string, public keyboardControlled: boolean) {
@@ -52,6 +53,10 @@ export class Ship extends Phaser.GameObjects.Graphics implements Identified{
         this.body.setSize(CONST.SHIP_SIZE * 2, CONST.SHIP_SIZE * 2);
         this.body.setOffset(-CONST.SHIP_SIZE, -CONST.SHIP_SIZE);*/
 
+        this.getBody().setFriction(0,0,0);
+        this.getBody().setIgnoreGravity(true);
+        this.getBody().setBounce(1);
+
         this.currentScene.add.existing(this);
     }
 
@@ -63,7 +68,6 @@ export class Ship extends Phaser.GameObjects.Graphics implements Identified{
         // define ship properties
         this.x = this.currentScene.sys.canvas.width / 2;
         this.y = this.currentScene.sys.canvas.height / 2;
-        this.velocity = new Phaser.Math.Vector2(0, 0);
 
         // define ship graphics and draw it
         this.lineStyle(1, 0xff0000);
@@ -89,16 +93,16 @@ export class Ship extends Phaser.GameObjects.Graphics implements Identified{
         } else {
         }
         if (this.keyboardControlled) {
-            this.applyForces();
             this.updateBullets();
         }
     }
 
     private handleInput(): void {
+        this.getBody().setAngularVelocity(0);//enable dampeners
         if (this.cursors.up.isDown) {
             this.boost();
         }
-
+        //TODO https://labs.phaser.io/edit.html?src=src\physics\matterjs\rotate%20body%20with%20cursors.js
         if (this.cursors.right.isDown) {
             this.rotation += 0.05;
         } else if (this.cursors.left.isDown) {
@@ -107,7 +111,7 @@ export class Ship extends Phaser.GameObjects.Graphics implements Identified{
 
         if (this.shootKey.isDown && !this.isShooting) {
             this.shoot();
-            this.recoil();
+            //this.recoil();
             this.isShooting = true;
         }
 
@@ -124,21 +128,19 @@ export class Ship extends Phaser.GameObjects.Graphics implements Identified{
         );
 
         // reduce the force and apply it to the velocity
-        force.scale(0.12);
-        this.velocity.add(force);
-    }
-
-    private applyForces(): void {
-        // apple velocity to position
-        this.x += this.velocity.x;
-        this.y += this.velocity.y;
-
-        // reduce the velocity
-        this.velocity.scale(0.98);
+        force.scale(0.01);
+        //this.getBody().setVelocity(force.x,force.y);
+        this.getBody().applyForce(force);
     }
 
     public shoot(): void {
-        this.createBullet("bullet/" + this.nextBulletNumber + "-" + this.id,this.x, this.y, this.rotation);
+        // create the force in the correct direction
+        let force = new Phaser.Math.Vector2(
+            Math.cos(this.rotation - Math.PI / 2),
+            Math.sin(this.rotation - Math.PI / 2)
+        );
+        force.scale(CONST.SHIP_SIZE);//just ahead of the ship
+        this.createBullet("bullet/" + this.nextBulletNumber + "-" + this.id,this.x+force.x, this.y+force.y, this.rotation);
     }
 
     deleteBullet(bulletid:string){
@@ -162,7 +164,7 @@ export class Ship extends Phaser.GameObjects.Graphics implements Identified{
 
         // reduce the force and apply it to the velocity
         force.scale(0.2);
-        this.velocity.add(force);
+        this.getBody().applyForce(force);
     }
 
     public updateBullets(): void {

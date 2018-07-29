@@ -1,15 +1,7 @@
 import {IdentifiedConverter} from "../../service/network/AssetConverter";
 import {Ship} from "../../objects/Ship";
 import {Identified} from "../../service/network/Asset";
-import {throws} from "assert";
-
-interface ShipPayload extends Identified {
-    id: string;
-    x: number;
-    y: number;
-    r: number;
-
-}
+import {ShipPayload} from "./dto/ShipPayload";
 
 export class ShipPayloadConverter implements IdentifiedConverter<Ship> {
     private scene: Phaser.Scene;

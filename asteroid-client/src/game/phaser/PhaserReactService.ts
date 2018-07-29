@@ -1,7 +1,9 @@
+import * as EventEmitter from "eventemitter3";
 
-export class PhaserService {
+export class PhaserReactService {
     private _parameters:any;
     gameDestroyedCallback:(()=>void)[] = [];
+    eventEmitter = new EventEmitter();
 
     get parameters(): any {
         return this._parameters;
@@ -26,4 +28,4 @@ export class PhaserService {
 
 }
 
-export let phaserService = new PhaserService();
+export let phaserReactService = new PhaserReactService();

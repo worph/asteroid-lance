@@ -1,7 +1,7 @@
 import {Bullet} from "../objects/Bullet";
 import {Ship} from "../objects/Ship";
 import {Asteroid} from "../objects/Asteroid";
-import NetworkGameManager from "./NetworkGameManager";
+import NetworkGameRules from "./NetworkGameRules";
 import NetworkAssets from "../service/network/NetworkAssets";
 import {AsteroidPayloadConverter} from "./converters/AsteroidPayloadConverter";
 import {ShipPayloadConverter} from "./converters/ShipPayloadConverter";
@@ -12,7 +12,7 @@ import NetworkAssetsManager from "../service/network/NetworkAssetsManager";
 
 export class NetworkGameStates {
 
-    public networkGameManager: NetworkGameManager = new NetworkGameManager();
+    public networkGameManager: NetworkGameRules = new NetworkGameRules();
 
     /* networked items model*/
     public player: Ship;

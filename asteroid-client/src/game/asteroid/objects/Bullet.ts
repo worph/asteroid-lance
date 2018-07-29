@@ -4,9 +4,9 @@ export class Bullet extends Phaser.GameObjects.Graphics implements Identified {
     private colors: number[];
     private selectedColor: number;
     private currentScene: Phaser.Scene;
-    public velocity: Phaser.Math.Vector2;
     private lifeSpan: number;
     private isOffScreen: boolean;
+    static readonly ID_PREFIX: string = "bullet/";
 
     public getBody():  Phaser.Physics.Matter.Image {
         let ret : any = this;
@@ -30,11 +30,11 @@ export class Bullet extends Phaser.GameObjects.Graphics implements Identified {
         // init bullet
         this.x = x;
         this.y = y;
-        this.velocity = new Phaser.Math.Vector2(
-            15 * Math.cos(rotation - Math.PI / 2),
-            15 * Math.sin(rotation - Math.PI / 2)
+        let velocity = new Phaser.Math.Vector2(
+            Math.cos(rotation - Math.PI / 2),
+            Math.sin(rotation - Math.PI / 2)
         );
-
+        velocity.scale(15);
         // define bullet graphics and draw it
         this.fillStyle(this.selectedColor, 1);
         this.fillCircle(0, 0, 3);
@@ -45,7 +45,10 @@ export class Bullet extends Phaser.GameObjects.Graphics implements Identified {
         this.body.setCircle(3);
         this.body.setOffset(-3, -3);*/
         this.currentScene.add.existing(this);
-        this.getBody().setVelocity(this.velocity.x,this.velocity.y);
+        this.getBody().setFriction(0,0,0);
+        this.getBody().setIgnoreGravity(true);
+        this.getBody().setBounce(1);
+        this.getBody().setVelocity(velocity.x,velocity.y);
     }
 
 

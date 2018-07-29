@@ -3,7 +3,7 @@ import * as SocketIO from "socket.io"
 
 export default class BroadcasterService {
 
-    finalAssets: { [id: string]: Identified; } = {};
+    assets: { [id: string]: Identified; } = {};
     io: SocketIO.Server;
 
     deleteAssetById(assetId: string) {
@@ -11,17 +11,17 @@ export default class BroadcasterService {
             id: assetId,
             value: []
         });
-        delete this.finalAssets[assetId];
+        delete this.assets[assetId];
     }
 
     createAsset(asset, socket) {
         //No consensus needed for asset creation
         socket.broadcast.emit(ASSET_EVENT.CREATED, asset);
-        this.finalAssets[asset.id] = asset;
+        this.assets[asset.id] = asset;
     }
 
     updateAsset(asset, socket) {
-        this.finalAssets[asset.id] = asset;
+        this.assets[asset.id] = asset;
         socket.broadcast.volatile.emit(ASSET_EVENT.UPDATED, asset);
 
     }
@@ -33,7 +33,7 @@ export default class BroadcasterService {
         } else {
             socket.broadcast.emit(ASSET_EVENT.DELETED, asset);
         }
-        delete this.finalAssets[asset.id];
+        delete this.assets[asset.id];
 
     }
 
@@ -42,7 +42,7 @@ export default class BroadcasterService {
         this.io.on('connection', (socket) => {
             console.log('a user connected: ', socket.id);
             // send all the current assets to the connected user
-            socket.emit(ASSET_EVENT.INIT, {assets: this.finalAssets});
+            socket.emit(ASSET_EVENT.INIT, {assets: this.assets});
 
             // when a player disconnects, remove them from our players object
             socket.on('disconnect', () => {
@@ -63,7 +63,7 @@ export default class BroadcasterService {
 
             // create or update asset
             socket.on(ASSET_ACTION.CREATE_OR_UPDATE, (asset: Asset) => {
-                if (this.finalAssets[asset.id] == undefined) {
+                if (this.assets[asset.id] == undefined) {
                     this.createAsset(asset, socket);
                 } else {
                     this.updateAsset(asset, socket);
