@@ -77,8 +77,9 @@ export class GameScene extends Phaser.Scene {
             this.networkGameState.createOrUpdateAsset(bullet);
             //TODO /!\ very important memory leak => off this event
             this.physicService.eventEmitter.on(this.networkGameState.player.id, (body: Identified) => {
-                //you tutch something (except bullet) => you die
-                if (body.id.startsWith(Bullet.ID_PREFIX)) {
+                //you touch something (except bullet) => you die
+                if (!body.id.startsWith(Bullet.ID_PREFIX)) {
+                    this.scene.restart();
                     this.networkGameState.networkGameManager.notifyEndGame(this.networkGameState.player.id);
                 }
             });
@@ -111,6 +112,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     update(): void {
+        this.physicService.update();//applies all collision event received
+        this.networkGameState.netWorkAssetManager.update();//applies network event
         this.fps.setText("FPS: " + this.sys.game.loop.actualFps.toFixed(2));
         let ship = this.networkGameState.player;
         ship.update();

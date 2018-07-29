@@ -52,7 +52,9 @@ export class BulletPayloadConverter implements IdentifiedConverter<Bullet> {
             body.setVelocity(payload.vx,payload.vy);
             body.setRotation(payload.r);
         } else {
-            throw new Error();
+            console.log(this.player);
+            console.log(payload);
+            console.error("bullet update ignored");
         }
     }
 

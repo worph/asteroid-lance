@@ -20,6 +20,7 @@ export default class LosePage extends React.Component<any, any> {
     };
 
     end:EndResult;
+    resetView = true;
 
     componentWillMount(): void {
         if(phaserReactService.parameters!==undefined) {
@@ -42,12 +43,18 @@ export default class LosePage extends React.Component<any, any> {
                         </div>}
                     </Typography>
                     <Typography variant="headline" component="h1">
+                        {this.resetView?<Button
+                            variant="raised"
+                            onClick={()=>{window.location.href="/"}}
+                        >
+                            Retry
+                        </Button>:
                         <Button
                             variant="raised"
                             component={LinkToHome}
                         >
                             Retry
-                        </Button>
+                        </Button>}
                     </Typography>
                 </Paper>
             </div>

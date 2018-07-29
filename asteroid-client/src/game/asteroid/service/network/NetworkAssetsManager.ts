@@ -1,8 +1,9 @@
 import NetworkAssets from "./NetworkAssets";
 import {ASSET_ACTION, Identified} from "./Asset";
 import {IdentifiedConverter} from "./AssetConverter";
+import {RenderLoop} from "../RenderLoop";
 
-export default class NetworkAssetsManager{
+export default class NetworkAssetsManager {
     registredConverter: {
         [id: string]: {
             networkAssets: NetworkAssets
@@ -14,19 +15,23 @@ export default class NetworkAssetsManager{
         };
     } = {};
 
-    registerNetworkAssets(assetPrefix:string,networkAssetId:string,assetConverter:IdentifiedConverter<any>){
+    renderLoop:RenderLoop = new RenderLoop(collisionEvent => {
+        this.processEvent(collisionEvent);
+    });
+
+    registerNetworkAssets(assetPrefix: string, networkAssetId: string, assetConverter: IdentifiedConverter<any>) {
         let registredListElement = this.registredConverter[networkAssetId];
-        registredListElement.supportedPrefix[assetPrefix]={
-            assetConverter:assetConverter,
+        registredListElement.supportedPrefix[assetPrefix] = {
+            assetConverter: assetConverter,
         }
     }
 
-    assetAction(item: Identified,action:string) {
+    assetAction(item: Identified, action: string) {
         Object.keys(this.registredConverter).forEach(id => {
             let registredConverterElement = this.registredConverter[id];
             let networkAssets = registredConverterElement.networkAssets;
             Object.keys(registredConverterElement.supportedPrefix).forEach(prefix => {
-                if(item.id.startsWith(prefix)){
+                if (item.id.startsWith(prefix)) {
                     let assetConverter = registredConverterElement.supportedPrefix[prefix].assetConverter;
                     let networkPayload = assetConverter.makeNetworkPayloadFromItem(item);
                     switch (action) {
@@ -49,51 +54,76 @@ export default class NetworkAssetsManager{
     }
 
     createAsset(asset: Identified) {
-        this.assetAction(asset,"create");
+        this.assetAction(asset, "create");
     }
 
     createOrUpdateAsset(asset: Identified) {
-        this.assetAction(asset,"createupdate");
+        this.assetAction(asset, "createupdate");
     }
 
     updateAsset(asset: Identified) {
-        this.assetAction(asset,"update");
+        this.assetAction(asset, "update");
     }
 
     deleteAsset(asset: Identified) {
-        this.assetAction(asset,"delete");
+        this.assetAction(asset, "delete");
+    }
+
+    processEvent(networkEvent: any) {
+        let type: string = networkEvent.type;
+        let asset: Identified = networkEvent.asset;
+        let registredListElement = networkEvent.registredListElement;
+
+        Object.keys(registredListElement.supportedPrefix).forEach(prefix => {
+            if (asset.id.startsWith(prefix)) {
+                switch (type) {
+                    case "create":
+                        registredListElement.supportedPrefix[prefix].assetConverter.createItemFromNetworkPayload(asset);
+                        break;
+                    case "update":
+                        registredListElement.supportedPrefix[prefix].assetConverter.updateItemFromNetworkPayload(asset);
+                        break;
+                    case "delete":
+                        registredListElement.supportedPrefix[prefix].assetConverter.deleteItemFromNetworkPayload(asset);
+                        break;
+                }
+            }
+        })
     }
 
     bootServices(apiServerAdd: any) {
         let id = apiServerAdd;
         this.registredConverter[id] = {
-            networkAssets:new NetworkAssets(),
-            supportedPrefix:{}
+            networkAssets: new NetworkAssets(),
+            supportedPrefix: {}
         };
         let registredListElement = this.registredConverter[id];
-        registredListElement.networkAssets.onAssetCreatedCallback((asset:Identified) => {
-            Object.keys(registredListElement.supportedPrefix).forEach(prefix => {
-                if(asset.id.startsWith(prefix)){
-                    registredListElement.supportedPrefix[prefix].assetConverter.createItemFromNetworkPayload(asset);
-                }
-            })
+        registredListElement.networkAssets.onAssetCreatedCallback((asset: Identified) => {
+            this.renderLoop.notifyEvent({
+                type:"create",
+                asset:asset,
+                registredListElement:registredListElement,
+            });
         });
-        registredListElement.networkAssets.onAssetUpdatedCallback((asset:Identified) => {
-            Object.keys(registredListElement.supportedPrefix).forEach(prefix => {
-                if(asset.id.startsWith(prefix)){
-                    //TODO asset updated so we read it from the network
-                    registredListElement.supportedPrefix[prefix].assetConverter.updateItemFromNetworkPayload(asset);
-                }
-            })
+        registredListElement.networkAssets.onAssetUpdatedCallback((asset: Identified) => {
+            this.renderLoop.notifyEvent({
+                type:"update",
+                asset:asset,
+                registredListElement:registredListElement,
+            });
         });
-        registredListElement.networkAssets.onAssetDeletedCallback((asset:Identified) => {
-            Object.keys(registredListElement.supportedPrefix).forEach(prefix => {
-                if(asset.id.startsWith(prefix)){
-                    registredListElement.supportedPrefix[prefix].assetConverter.deleteItemFromNetworkPayload(asset);
-                }
-            })
+        registredListElement.networkAssets.onAssetDeletedCallback((asset: Identified) => {
+            this.renderLoop.notifyEvent({
+                type:"delete",
+                asset:asset,
+                registredListElement:registredListElement,
+            });
         });
         registredListElement.networkAssets.start(apiServerAdd);
+    }
+
+    update(){
+        this.renderLoop.update();
     }
 
 }
