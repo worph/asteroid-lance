@@ -13,6 +13,13 @@ canvas {
     pointer-events: none;
 }
 
+#overlay{
+    min-width:100%;
+    min-height: 100%;
+    width: stretch;
+    height: stretch;
+}
+
 #game{
     min-width:100%;
     min-height: 100%;

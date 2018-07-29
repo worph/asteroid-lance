@@ -31,6 +31,10 @@ export class GameScene extends Phaser.Scene {
         console.log("parameters : ", parameters);
         let apiServerAdd = parameters.apiServer;
 
+        phaserReactService.onResizeEvent((width, height) => {
+            this.cameras.main.setSize(width,height);
+        });
+
         {
             ///register input
             //https://hammerjs.github.io/

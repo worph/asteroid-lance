@@ -16,7 +16,8 @@ import ListItem from "@material-ui/core/ListItem/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon/ListItemIcon";
 import StarIcon from '@material-ui/icons/Star';
 import Chip from "@material-ui/core/Chip/Chip";
-import { Redirect } from 'react-router-dom'
+import { Redirect } from 'react-router-dom';
+import ResizeDetector from 'react-resize-detector';
 
 interface State {
     redirectTo: string;
@@ -113,47 +114,74 @@ class AsteroidGame extends React.Component<any, State> {
         }
     };
 
-    public render() {
-        return (<div>
-                {this.renderRedirect()}
-                <div id="caneva-overlay" className="pointerOff" style={this.state.overlayStyle}>
-                    <Drawer open={this.state.open}
-                            onClose={()=>{this.setState({open:false})}}
-                            style={{maxWidth:"50%",wordBreak: "break-all"}}
-                    >
-                        <Typography component="h1">
+    onResize = (width,height) => {
+        console.log(width+"/"+height)
+        //resize overlay
+        this.setState({
+            overlayStyle: {
+                position: this.state.overlayStyle.position,
+                left: this.state.overlayStyle.left,
+                top: this.state.overlayStyle.top,
+                width: width+"px",
+                height: height + "px"
+            }
+        });
+        this.setState({overlayStyle:this.state.overlayStyle})
+        //resize game
+        if(this.game != undefined) {
+            this.game.resize(width, height);
+            phaserReactService.resize(width,height);
+        }
+    };
 
-                        </Typography>
-                        <Chip
-                            style={{margin:"20px"}}
-                            label={"Hello "+ phaserReactService.parameters.name}
-                        />
-                        <Typography component="div"> <List>
-                                <ListItem>High Scores</ListItem>
-                                {Object.keys(this.state.scores).map(key => {
-                                    let score = this.state.scores[key];
-                                    return <ListItem key={key}>
-                                        <ListItemIcon>
-                                            <StarIcon />
-                                        </ListItemIcon>{key + " : " +score}</ListItem>;
-                                })}
-                            </List>
-                        </Typography>
-                    </Drawer>
-                    <div style={{position: 'relative'}}>
-                        <Button
-                            className="pointerOn"
-                            style={{
-                                position: 'absolute',
-                                top: "10px",
-                                right: "10px",
-                            }}
-                            variant="fab"
-                            onClick={()=>{this.setState({open:true});this.update();}}
-                        ><Menu/></Button>
-                    </div></div>
-                <div id={this.canvaName}></div>
-            </div>
+    public render() {
+        return (<ResizeDetector
+                handleWidth
+                handleHeight
+                onResize = {this.onResize}
+                render={({ width, height }) => (
+                    <div>
+                        {this.renderRedirect()}
+                        <div id="caneva-overlay" className="pointerOff" style={this.state.overlayStyle}>
+                            <Drawer open={this.state.open}
+                                    onClose={()=>{this.setState({open:false})}}
+                                    style={{maxWidth:"50%",wordBreak: "break-all"}}
+                            >
+                                <Typography component="h1">
+
+                                </Typography>
+                                <Chip
+                                    style={{margin:"20px"}}
+                                    label={"Hello "+ phaserReactService.parameters.name}
+                                />
+                                <Typography component="div"> <List>
+                                    <ListItem>High Scores</ListItem>
+                                    {Object.keys(this.state.scores).map(key => {
+                                        let score = this.state.scores[key];
+                                        return <ListItem key={key}>
+                                            <ListItemIcon>
+                                                <StarIcon />
+                                            </ListItemIcon>{key + " : " +score}</ListItem>;
+                                    })}
+                                </List>
+                                </Typography>
+                            </Drawer>
+                            <div style={{position: 'relative'}}>
+                                <Button
+                                    className="pointerOn"
+                                    style={{
+                                        position: 'absolute',
+                                        top: "10px",
+                                        right: "10px",
+                                    }}
+                                    variant="fab"
+                                    onClick={()=>{this.setState({open:true});this.update();}}
+                                ><Menu/></Button>
+                            </div></div>
+                        <div id={this.canvaName}></div>
+                    </div>
+                )}
+            />
         );
     }
 }
