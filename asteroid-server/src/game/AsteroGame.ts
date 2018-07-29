@@ -6,6 +6,7 @@ import {NetPlayerShip} from "./NetPlayerShip";
 
 import * as SocketIO from "socket.io";
 import * as express from 'express';
+import {AsteroidPayloadConverter} from "./AsteroidPayloadConverter";
 
 interface NVMFormat{
     scores:{ [id: string]: number; }
@@ -17,14 +18,16 @@ export default class AsteroGame {
     };
     playerShip: { [id: string]: NetPlayerShip; } = {};
     asteroids: { [id: string]: Asteroid; } = {};
+
     private numberOfAsteroids: number = 3;
-    private worldSizeX: number = 1000;
-    private worldSizeY: number = 1000;
+    private worldSizeX: number = 1920;
+    private worldSizeY: number = 1920;
     stepTimeMs: number = 1000;//millisecond
     distributedAssetLocator: DistributedAssetsLocator;
     io: SocketIO.Server;
     private expressApp: any;
     static readonly PLAYERSHIP_NOTIFY:string = "playership";
+    public asteroidPayloadConverter:AsteroidPayloadConverter = new AsteroidPayloadConverter();
 
     start(io: SocketIO.Server, expressApp: any, distributedAssetLocator: DistributedAssetsLocator, broadcastService: BroadcasterService) {
         this.io = io.of('/asteroid');
@@ -152,7 +155,7 @@ export default class AsteroGame {
 
     private spawnAsteroids(
         aAmount: number,
-        aSize: number,
+        aSize: number,//diameter
         aX?: number,
         aY?: number
     ) {
@@ -162,25 +165,21 @@ export default class AsteroGame {
                 let y = aY;
                 if (x === undefined) {
                     x = Math.floor(Math.random() * this.worldSizeX);
+                }else{
+                    //random around
+                    x = Math.floor(Math.random() * aSize) + aX - aSize/2;
                 }
                 if (y == undefined) {
                     y = Math.floor(Math.random() * this.worldSizeY);
+                }else{
+                    //random around
+                    y = Math.floor(Math.random() * aSize) + aY - aSize/2;
                 }
                 let asteroid = new Asteroid(x, y, aSize);
+                asteroid.velocityX = Math.random(), //velocity X;
+                asteroid.velocityY = Math.random(), //velocity X;
                 this.asteroids[asteroid.id] = asteroid;
-                this.distributedAssetLocator.createAsset({
-                    id: asteroid.id,
-                    value: [x,
-                        y,
-                        Math.random() * 100,
-                        Math.random() * 100,
-                        Math.random(),
-                        Math.random(),
-                        Math.random(),
-                        0,
-                        0.05,
-                        aSize]
-                }, undefined);
+                this.distributedAssetLocator.createAsset(this.asteroidPayloadConverter.createNetworkPayloadFromAsteroid(asteroid), undefined);
             }
         }
     }

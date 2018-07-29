@@ -1,4 +1,4 @@
-import {Identified} from "../service/Asset";
+import {Identified} from "../service/network/Asset";
 
 let CONST = {
     ASTEROID_COUNT: 3,
@@ -37,7 +37,8 @@ export class Asteroid extends Phaser.GameObjects.Graphics implements Identified{
     }
 
     public getBody():  Phaser.Physics.Matter.Image {
-        return this.body;
+        let ret : any = this;
+        return ret;
     }
 
     constructor(params:GraphicsParam,public id:string,x:number,y:number,size:number) {
@@ -62,7 +63,9 @@ export class Asteroid extends Phaser.GameObjects.Graphics implements Identified{
         this.body.allowGravity = false;
         this.body.setCircle(this.asteroidRadius);
         this.body.setOffset(-this.asteroidRadius, -this.asteroidRadius);*/
-        this.body.set
+        this.getBody().setFriction(0,0,0);
+        this.getBody().setIgnoreGravity(true);
+        this.getBody().setBounce(1);
 
         this.currentScene.add.existing(this);
     }

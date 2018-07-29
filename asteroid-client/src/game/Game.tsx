@@ -74,7 +74,7 @@ class AsteroidGame extends React.Component<any, State> {
                 physics: {
                     default: "matter",
                     matter: {
-                        debug: true,
+                        debug: false,
                         gravity: {
                             x : 0.0,
                             y: 0.0
@@ -115,12 +115,11 @@ class AsteroidGame extends React.Component<any, State> {
                             style={{margin:"20px"}}
                             label={"Hello "+ phaserService.parameters.name}
                         />
-                        <Typography>
-                            <List>
+                        <Typography component="div"> <List>
                                 <ListItem>Scores</ListItem>
                                 {Object.keys(this.state.scores).map(key => {
                                     let score = this.state.scores[key];
-                                    return <ListItem>
+                                    return <ListItem key={key}>
                                         <ListItemIcon>
                                             <StarIcon />
                                         </ListItemIcon>{key + " : " +score}</ListItem>;

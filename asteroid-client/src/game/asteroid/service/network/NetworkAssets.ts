@@ -1,7 +1,7 @@
 import {Asset, ASSET_ACTION, ASSET_EVENT, Identified} from "./Asset";
 import * as SocketIO from "socket.io-client";
 
-export default class NetworkAssets {
+export default class NetworkAssets{
     assets: { [id: string]: any | Identified; } = {};
     private socket: any;
     private assetCreatedCallback: (asset: any | Identified) => void;

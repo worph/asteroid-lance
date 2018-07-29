@@ -2,9 +2,11 @@ export class Asteroid {
     id: string;
     velocityX: number;
     velocityY: number;
+    velocityAngular: number;
+    rotation: number;
     x: number;
     y: number;
-    private size: number;
+    size: number;
     private asteroidSeed: number;
 
     makeid(length:number) {
@@ -24,6 +26,8 @@ export class Asteroid {
         this.size = size;
         this.velocityX = 1;
         this.velocityY = 1;
+        this.velocityAngular = 0.005;
+        this.rotation = 0;
         this.asteroidSeed = Math.random();
     }
 }

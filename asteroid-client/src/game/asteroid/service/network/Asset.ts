@@ -2,6 +2,12 @@ export interface Identified {
     id: string
 }
 
+class ImmutableIdentified implements Identified{
+    readonly id = "";
+}
+
+export const IDENTIFIED_NO_VALUE: ImmutableIdentified = Object.freeze(new ImmutableIdentified());
+
 export interface Asset extends Identified{
     value: number[]
 }

@@ -3,16 +3,16 @@ import {phaserService} from "../../phaser/PhaserService";
 import {NetworkGameStates} from "../game/NetworkGameStates";
 import {PhysicService} from "../service/PhysicService";
 import {idService} from "../service/IDService";
-import {Identified} from "../service/Asset";
+import {Identified} from "../service/network/Asset";
 import {Asteroid} from "../objects/Asteroid";
 
-declare var window:any;
+declare var window: any;
 
 export class GameScene extends Phaser.Scene {
     private score: number;
     private fps: Phaser.GameObjects.Text;
-    private networkGameState:NetworkGameStates;
-    private physicService : PhysicService;
+    private networkGameState: NetworkGameStates;
+    private physicService: PhysicService;
 
     constructor() {
         super({
@@ -22,14 +22,14 @@ export class GameScene extends Phaser.Scene {
 
     preload(): void {
         //this.load.image('background','/assets/tests/debug-grid-1920x1920.png');
-        this.load.image('background','/assets/astronomy-astrophotography-black-207529.jpg');
+        this.load.image('background', '/assets/astronomy-astrophotography-black-207529.jpg');
     }
 
     create(): void {
         this.physicService = new PhysicService(this.matter);
         let parameters = phaserService.parameters;
-        console.log("parameters : ",parameters);
-        let apiServerAdd=parameters.apiServer;
+        console.log("parameters : ", parameters);
+        let apiServerAdd = parameters.apiServer;
 
         {
             ///register input
@@ -64,42 +64,52 @@ export class GameScene extends Phaser.Scene {
             let worldBoundY = 1920;
             let sprite = this.add.sprite(worldBoundX / 2, worldBoundY / 2, 'background');
             sprite.setScale(worldBoundX / sprite.width, worldBoundY / sprite.height);
-            this.matter.world.setBounds(0,0,worldBoundX,worldBoundY);
+            this.matter.world.setBounds(0, 0, worldBoundX, worldBoundY);
             this.cameras.main.setBounds(0, 0, worldBoundX, worldBoundY);
         }
 
-        this.networkGameState = new NetworkGameStates(this,apiServerAdd,new Ship({scene: this, opt: {}}, "player/" + idService.makeid(64), true),parameters.name);
+        this.networkGameState = new NetworkGameStates(this, apiServerAdd, new Ship({
+            scene: this,
+            opt: {}
+        }, "player/" + idService.makeid(64), true), parameters.name);
         this.networkGameState.player.onBulletCreated(id => {
             let bullet = this.networkGameState.player.getBullets()[id];
-            this.networkGameState.broadcasterService.createOrUpdateAsset(this.networkGameState.createNetworkPayloadFromBullet(bullet));
+            this.networkGameState.broadcasterService.createOrUpdateAsset(this.networkGameState.bulletPayloadConverter.makeNetworkPayloadFromItem(bullet));
             //TODO /!\ very important memory leak => off this event
-            this.physicService.eventEmitter.on(bullet.id,(body:Identified)=>{
-                if(body.id.startsWith(Asteroid.ID_PREFIX)){
-                    let asteroid = body as Asteroid;
-                    this.networkGameState.networkAssetSynchronizer.deleteAsset(this.networkGameState.createNetworkPayloadFromAsteroid(asteroid));
-                    this.networkGameState.asteroids[asteroid.id].destroy();
-                    delete this.networkGameState.asteroids[asteroid.id];
-                    this.networkGameState.networkGameManager.updateScore(asteroid.id,this.networkGameState.player.id,asteroid.getSize());
+            this.physicService.eventEmitter.on(bullet.id, (body: Identified) => {
+                if (body.id !== this.networkGameState.player.id) {
+                    if (body.id.startsWith(Asteroid.ID_PREFIX)) {
+                        //delete asteroid
+                        let asteroid = body as Asteroid;
+                        this.networkGameState.networkAssetSynchronizer.deleteAsset(this.networkGameState.asteroidPayloadConverter.makeNetworkPayloadFromItem(asteroid));
+                        this.networkGameState.asteroids[asteroid.id].destroy();
+                        delete this.networkGameState.asteroids[asteroid.id];
+                        this.networkGameState.networkGameManager.updateScore(asteroid.id, this.networkGameState.player.id, asteroid.getSize());
+                    }
+                    //delete bullet
+                    this.networkGameState.broadcasterService.deleteAsset(this.networkGameState.bulletPayloadConverter.makeNetworkPayloadFromItem(bullet));
+                    this.networkGameState.player.getBullets()[id].destroy();
+                    delete this.networkGameState.player.getBullets()[id];
                 }
             })
         });
         this.cameras.main.startFollow(this.networkGameState.player);    //  Set the camera bounds to be the size of the image
         this.score = 0;
         this.fps = this.add.text(
-                this.sys.canvas.width / 2,
-                40,
-                "" + this.score,
-                {fontSize: '32px', fill: '#FFFFFF'}
-            );
+            this.sys.canvas.width / 2,
+            40,
+            "FPS: 60.00",
+            {fontSize: '32px', fill: '#FFFFFF'}
+        );
 
-        let body = this.matter.add.gameObject(this.fps,{});
+        let body = this.matter.add.gameObject(this.fps, {});
     }
 
     update(): void {
-        this.fps.setText("FPS: "+this.sys.game.loop.actualFps);
+        this.fps.setText("FPS: " + this.sys.game.loop.actualFps.toFixed(2));
         let ship = this.networkGameState.player;
         ship.update();
-        this.networkGameState.broadcasterService.updateAsset(this.networkGameState.createNetworkPayloadFromPlayer(ship));
+        this.networkGameState.broadcasterService.updateAsset(this.networkGameState.shipPayloadConverter.makeNetworkPayloadFromItem(ship));
         this.networkGameState.broadcasterService.setPause(true);
         this.networkGameState.networkAssetSynchronizer.setPause(true);
         // update distant player bullet
@@ -110,12 +120,12 @@ export class GameScene extends Phaser.Scene {
         /*// check collision between asteroids and bullets
         Object.keys(this.asteroids).forEach((key) => {
             let asteroid = this.asteroids[key];
-            this.networkAssetSynchronizer.updateAsset(this.createNetworkPayloadFromAsteroid(asteroid));
+            this.networkAssetSynchronizer.updateAsset(this.makeNetworkPayloadFromItem(asteroid));
             Object.keys(ship.getBullets()).forEach(bkey => {
                 let bullet = ship.getBullets()[bkey];
                 if(asteroid.getBody()!=undefined) {
                     if (Phaser.Geom.Intersects.RectangleToRectangle(bullet.getBody(), asteroid.getBody())) {
-                        this.networkAssetSynchronizer.deleteAsset(this.createNetworkPayloadFromAsteroid(asteroid));
+                        this.networkAssetSynchronizer.deleteAsset(this.makeNetworkPayloadFromItem(asteroid));
                         this.asteroids[asteroid.id].destroy();
                         delete this.asteroids[asteroid.id];
                         this.networkGameManager.updateScore(asteroid.id,this.player.id,asteroid.getSize());
