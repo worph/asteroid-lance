@@ -24,6 +24,6 @@ export default class GamePage extends Component<{
     }
 
     render() {
-        return (<AsteroidGame/>)
+        return (<div className="fullSpace"><AsteroidGame/></div>)
     }
 }

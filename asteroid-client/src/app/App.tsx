@@ -19,10 +19,10 @@ class App extends React.Component {
             },
         });
         return (
-            <BrowserRouter className="fullSpace">
+            <BrowserRouter>
                 <MuiThemeProvider theme={theme}>
-                    <div className="fullSpace">
-                        <Switch className="fullSpace">
+                    <div>
+                        <Switch>
                             <Route exact path='/' component={HomePage}/>
                             <Route exact path='/loser' component={LosePage}/>
                             <Route exact path='/game/:player' component={GamePage}/>

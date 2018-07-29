@@ -140,7 +140,7 @@ class AsteroidGame extends React.Component<any, State> {
                 handleHeight
                 onResize = {this.onResize}
                 render={({ width, height }) => (
-                    <div>
+                    <div className="fullSpace">
                         {this.renderRedirect()}
                         <div id="caneva-overlay" className="pointerOff" style={this.state.overlayStyle}>
                             <Drawer open={this.state.open}
