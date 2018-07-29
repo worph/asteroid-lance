@@ -5,13 +5,17 @@ export interface AssetConverter<T> extends IdentifiedConverter<T>{
 
     makeNetworkPayloadFromItem(item: T): Asset;
 
-    updateItemFromNetworkPayload(item: T, payload: Asset): void
+    updateItemFromNetworkPayload(payload: Asset): void
+
+    deleteItemFromNetworkPayload(payload: Asset): void;
 }
 
 export interface IdentifiedConverter<T> {
-    createItemFromNetworkPayload(identified: Identified): T;
+    createItemFromNetworkPayload(payload: Identified): T;
 
     makeNetworkPayloadFromItem(item: T): Identified;
 
-    updateItemFromNetworkPayload(item: T, payload: Identified): void
+    updateItemFromNetworkPayload(payload: Identified): void
+
+    deleteItemFromNetworkPayload(payload: Identified): void;
 }

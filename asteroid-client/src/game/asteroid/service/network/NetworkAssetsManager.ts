@@ -1,5 +1,5 @@
 import NetworkAssets from "./NetworkAssets";
-import {Identified} from "./Asset";
+import {ASSET_ACTION, Identified} from "./Asset";
 import {IdentifiedConverter} from "./AssetConverter";
 
 export default class NetworkAssetsManager{
@@ -30,6 +30,9 @@ export default class NetworkAssetsManager{
                     let assetConverter = registredConverterElement.supportedPrefix[prefix].assetConverter;
                     let networkPayload = assetConverter.makeNetworkPayloadFromItem(item);
                     switch (action) {
+                        case "createupdate":
+                            networkAssets.createOrUpdateAsset(networkPayload);
+                            break;
                         case "create":
                             networkAssets.createAsset(networkPayload);
                             break;
@@ -45,17 +48,37 @@ export default class NetworkAssetsManager{
         })
     }
 
-    /*bootServices(apiServerAdd: any) {
-        let id = "broadcasterService";
+    createAsset(asset: Identified) {
+        this.assetAction(asset,"create");
+    }
+
+    createOrUpdateAsset(asset: Identified) {
+        this.assetAction(asset,"createupdate");
+    }
+
+    updateAsset(asset: Identified) {
+        this.assetAction(asset,"update");
+    }
+
+    deleteAsset(asset: Identified) {
+        this.assetAction(asset,"delete");
+    }
+
+    bootServices(apiServerAdd: any) {
+        let id = apiServerAdd;
+        this.registredConverter[id] = {
+            networkAssets:new NetworkAssets(),
+            supportedPrefix:{}
+        };
         let registredListElement = this.registredConverter[id];
-        this.broadcasterService.onAssetCreatedCallback((asset:Identified) => {
+        registredListElement.networkAssets.onAssetCreatedCallback((asset:Identified) => {
             Object.keys(registredListElement.supportedPrefix).forEach(prefix => {
                 if(asset.id.startsWith(prefix)){
                     registredListElement.supportedPrefix[prefix].assetConverter.createItemFromNetworkPayload(asset);
                 }
             })
         });
-        this.broadcasterService.onAssetUpdatedCallback((asset:Identified) => {
+        registredListElement.networkAssets.onAssetUpdatedCallback((asset:Identified) => {
             Object.keys(registredListElement.supportedPrefix).forEach(prefix => {
                 if(asset.id.startsWith(prefix)){
                     //TODO asset updated so we read it from the network
@@ -63,15 +86,14 @@ export default class NetworkAssetsManager{
                 }
             })
         });
-        this.broadcasterService.onAssetDeletedCallback((asset:Identified) => {
+        registredListElement.networkAssets.onAssetDeletedCallback((asset:Identified) => {
             Object.keys(registredListElement.supportedPrefix).forEach(prefix => {
                 if(asset.id.startsWith(prefix)){
                     registredListElement.supportedPrefix[prefix].assetConverter.deleteItemFromNetworkPayload(asset);
                 }
             })
         });
-        this.broadcasterService.start(apiServerAdd+"/broadcaster");
-        this.broadcasterService.createAsset(this.shipPayloadConverter.makeNetworkPayloadFromItem(this.player));
-    }*/
+        registredListElement.networkAssets.start(apiServerAdd);
+    }
 
 }

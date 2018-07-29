@@ -1,45 +1,30 @@
 import {Asset, ASSET_ACTION, ASSET_EVENT, Identified} from "./Asset";
 import * as SocketIO from "socket.io-client";
 
-export default class NetworkAssets{
+export default class NetworkAssets {
     assets: { [id: string]: any | Identified; } = {};
     private socket: any;
     private assetCreatedCallback: (asset: any | Identified) => void;
     private assetUpdatedCallback: (asset: any | Identified) => void;
     private assetDeletedCallback: (asset: any | Identified) => void;
-    pause: boolean = false;
-    queueEvent: { event: string, data: any }[] = [];
-
 
     start(url: string) {
-        this.socket = SocketIO(url, { forceNew: false });
+        this.socket = SocketIO(url, {forceNew: false});
 
-        this.socket.on(ASSET_EVENT.INIT, (initPayload:any) => {
+        this.socket.on(ASSET_EVENT.INIT, (initPayload: any) => {
             this.assets = {};
             Object.keys(initPayload.assets).forEach(id => {
                 this.createAssetInternal(initPayload.assets[id]);
             });
         });
-        this.socket.on(ASSET_EVENT.CREATED, (asset:any | Identified) => {
-            if (this.pause) {
-                this.queueEvent.push({event: ASSET_EVENT.CREATED, data: asset});
-            } else {
-                this.createAssetInternal(asset);
-            }
+        this.socket.on(ASSET_EVENT.CREATED, (asset: any | Identified) => {
+            this.createAssetInternal(asset);
         });
-        this.socket.on(ASSET_EVENT.UPDATED, (asset:any | Identified) => {
-            if (this.pause) {
-                this.queueEvent.push({event: ASSET_EVENT.UPDATED, data: asset});
-            } else {
-                this.updateAssetInternal(asset);
-            }
+        this.socket.on(ASSET_EVENT.UPDATED, (asset: any | Identified) => {
+            this.updateAssetInternal(asset);
         });
-        this.socket.on(ASSET_EVENT.DELETED, (asset:any | Identified) => {
-            if (this.pause) {
-                this.queueEvent.push({event: ASSET_EVENT.DELETED, data: asset});
-            } else {
-                this.deleteAssetInternal(asset);
-            }
+        this.socket.on(ASSET_EVENT.DELETED, (asset: any | Identified) => {
+            this.deleteAssetInternal(asset);
         });
     }
 
@@ -56,25 +41,6 @@ export default class NetworkAssets{
     deleteAssetInternal(asset) {
         delete this.assets[asset.id];
         this.assetDeletedCallback(asset);
-    }
-
-    setPause(pause: boolean) {
-        if (!pause) {
-            this.queueEvent.forEach(value => {
-                switch (value.event) {
-                    case ASSET_EVENT.CREATED:
-                        this.createAssetInternal(value.data);
-                        break;
-                    case ASSET_EVENT.UPDATED:
-                        this.updateAssetInternal(value.data);
-                        break;
-                    case ASSET_EVENT.DELETED:
-                        this.deleteAssetInternal(value.data);
-                        break;
-                }
-            });
-        }
-        this.pause = pause;
     }
 
     getCurrentSocketId() {

@@ -74,20 +74,20 @@ export class GameScene extends Phaser.Scene {
         }, "player/" + idService.makeid(64), true), parameters.name);
         this.networkGameState.player.onBulletCreated(id => {
             let bullet = this.networkGameState.player.getBullets()[id];
-            this.networkGameState.broadcasterService.createOrUpdateAsset(this.networkGameState.bulletPayloadConverter.makeNetworkPayloadFromItem(bullet));
+            this.networkGameState.createOrUpdateAsset(bullet);
             //TODO /!\ very important memory leak => off this event
             this.physicService.eventEmitter.on(bullet.id, (body: Identified) => {
                 if (body.id !== this.networkGameState.player.id) {
                     if (body.id.startsWith(Asteroid.ID_PREFIX)) {
                         //delete asteroid
                         let asteroid = body as Asteroid;
-                        this.networkGameState.networkAssetSynchronizer.deleteAsset(this.networkGameState.asteroidPayloadConverter.makeNetworkPayloadFromItem(asteroid));
+                        this.networkGameState.deleteAsset(asteroid);
                         this.networkGameState.asteroids[asteroid.id].destroy();
                         delete this.networkGameState.asteroids[asteroid.id];
                         this.networkGameState.networkGameManager.updateScore(asteroid.id, this.networkGameState.player.id, asteroid.getSize());
                     }
                     //delete bullet
-                    this.networkGameState.broadcasterService.deleteAsset(this.networkGameState.bulletPayloadConverter.makeNetworkPayloadFromItem(bullet));
+                    this.networkGameState.deleteAsset(bullet);
                     this.networkGameState.player.getBullets()[id].destroy();
                     delete this.networkGameState.player.getBullets()[id];
                 }
@@ -109,9 +109,7 @@ export class GameScene extends Phaser.Scene {
         this.fps.setText("FPS: " + this.sys.game.loop.actualFps.toFixed(2));
         let ship = this.networkGameState.player;
         ship.update();
-        this.networkGameState.broadcasterService.updateAsset(this.networkGameState.shipPayloadConverter.makeNetworkPayloadFromItem(ship));
-        this.networkGameState.broadcasterService.setPause(true);
-        this.networkGameState.networkAssetSynchronizer.setPause(true);
+        this.networkGameState.updateAsset(ship);
         // update distant player bullet
         Object.keys(this.networkGameState.otherPlayer).forEach(key => {
             this.networkGameState.otherPlayer[key].updateBullets();
@@ -143,8 +141,6 @@ export class GameScene extends Phaser.Scene {
                 this.gotHit = true;
             }
         });*/
-        this.networkGameState.broadcasterService.setPause(false);
-        this.networkGameState.networkAssetSynchronizer.setPause(false);
     }
 
 }

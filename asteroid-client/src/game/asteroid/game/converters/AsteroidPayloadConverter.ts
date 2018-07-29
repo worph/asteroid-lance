@@ -3,14 +3,22 @@ import {Asteroid} from "../../objects/Asteroid";
 import {AssetConverter} from "../../service/network/AssetConverter";
 
 export class AsteroidPayloadConverter implements AssetConverter<Asteroid> {
-    scene: Phaser.Scene;
+    private scene: Phaser.Scene;
+    private asteroids: { [id: string]: Asteroid; };
 
-    createItemFromNetworkPayload(asset: Asset): Asteroid {
+    constructor(scene: Phaser.Scene, asteroids: { [p: string]: Asteroid }) {
+        this.scene = scene;
+        this.asteroids = asteroids;
+    }
+
+    createItemFromNetworkPayload(payload: Asset): Asteroid {
+        console.log("network asteroid created : " , payload);
         let asteroid = new Asteroid({
             scene: this.scene,
             opt:{}
-        }, asset.id, 0, 0, asset.value[6]);
-        this.updateItemFromNetworkPayload(asteroid, asset);
+        }, payload.id, 0, 0, payload.value[6]);
+        this.asteroids[payload.id] = asteroid;
+        this.updateItemFromNetworkPayload(payload);
         return asteroid;
     }
 
@@ -29,7 +37,8 @@ export class AsteroidPayloadConverter implements AssetConverter<Asteroid> {
         }
     }
 
-    updateItemFromNetworkPayload(asteroid: Asteroid, payload: Asset): void {
+    updateItemFromNetworkPayload(payload: Asset): void {
+        let asteroid: Asteroid = this.asteroids[payload.id];
         if(asteroid==undefined){
             console.error("undefined asteroid")
             return;
@@ -40,5 +49,11 @@ export class AsteroidPayloadConverter implements AssetConverter<Asteroid> {
         body.setVelocity(payload.value[3], payload.value[4]);
         body.setAngularVelocity(payload.value[5]);
         //size is ignored
+    }
+
+    deleteItemFromNetworkPayload(payload: Asset): void {
+        console.log("network asteroid removed : " + payload.id);
+        this.asteroids[payload.id].destroy();
+        delete this.asteroids[payload.id];
     }
 }
