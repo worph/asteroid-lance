@@ -21,23 +21,27 @@ export class PhysicService {
         let bodyA = collisionEvent.bodyA;
         let bodyB = collisionEvent.bodyB;
         //TODO check if all those if are necesary in this point optim concern /!\
-        let bodyAOk = false;
-        if (!(bodyA.gameObject == undefined || bodyA.gameObject == null)) {
-            if (bodyA.gameObject.id != undefined) {
-                bodyAOk = true;
+        let bodyAid:string = "";
+        if (bodyA.gameObject != null) {
+            if (bodyA.gameObject != undefined) {
+                if (bodyA.gameObject.id != undefined) {
+                    bodyAid = bodyA.gameObject.id;
+                }
             }
         }
-        let bodyBOk = false;
-        if (!(bodyB.gameObject == undefined || bodyB.gameObject == null)) {
-            if (bodyB.gameObject.id != undefined) {
-                bodyBOk = true;
+        let bodyBid:string = "";
+        if (bodyB.gameObject != null) {
+            if (bodyB.gameObject != undefined) {
+                if (bodyB.gameObject.id != undefined) {
+                    bodyBid = bodyB.gameObject.id;
+                }
             }
         }
-        if (bodyAOk) {
-            this._eventEmitter.emit(bodyA.gameObject.id, bodyBOk ? bodyB.gameObject : IDENTIFIED_NO_VALUE);
+        if (bodyAid!=="") {
+            this._eventEmitter.emit(bodyAid, bodyBid!="" ? bodyB.gameObject : IDENTIFIED_NO_VALUE);
         }
-        if (bodyBOk) {
-            this._eventEmitter.emit(bodyB.gameObject.id, bodyAOk ? bodyA.gameObject : IDENTIFIED_NO_VALUE);
+        if (bodyBid!="") {
+            this._eventEmitter.emit(bodyBid, bodyAid!=="" ? bodyA.gameObject : IDENTIFIED_NO_VALUE);
         }
     }
 

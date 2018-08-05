@@ -76,10 +76,8 @@ export class GameScene extends Phaser.Scene {
             scene: this,
             opt: {}
         }, "player/" + idService.makeid(64), true), parameters.name);
-        this.networkGameState.player.onBulletCreated(id => {
-            let bullet = this.networkGameState.player.getBullets()[id];
-            this.networkGameState.createOrUpdateAsset(bullet);
-            //TODO /!\ very important memory leak => off this event
+
+        if(false) {
             this.physicService.eventEmitter.on(this.networkGameState.player.id, (body: Identified) => {
                 //you touch something (except bullet) => you die
                 if (!body.id.startsWith(Bullet.ID_PREFIX)) {
@@ -87,7 +85,12 @@ export class GameScene extends Phaser.Scene {
                     this.networkGameState.networkGameManager.notifyEndGame(this.networkGameState.player.id);
                 }
             });
-            this.physicService.eventEmitter.on(bullet.id, (body: Identified) => {
+        }
+
+        this.networkGameState.player.onBulletCreated(id => {
+            let bullet = this.networkGameState.player.getBullets()[id];
+            this.networkGameState.createOrUpdateAsset(bullet);
+            let handle = (body: Identified) => {
                 if (body.id !== this.networkGameState.player.id) {
                     if (body.id.startsWith(Asteroid.ID_PREFIX)) {
                         //delete asteroid
@@ -101,8 +104,10 @@ export class GameScene extends Phaser.Scene {
                     this.networkGameState.deleteAsset(bullet);
                     this.networkGameState.player.getBullets()[id].destroy();
                     delete this.networkGameState.player.getBullets()[id];
+                    this.physicService.eventEmitter.off(bullet.id, handle);
                 }
-            });
+            };
+            this.physicService.eventEmitter.on(bullet.id, handle);
         });
         this.cameras.main.startFollow(this.networkGameState.player,true, 0.05, 0.05);    //  Set the camera bounds to be the size of the image
         this.fps = this.add.text(

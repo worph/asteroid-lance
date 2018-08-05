@@ -108,6 +108,19 @@ export default class AsteroGame {
             res.json(this.nvm.scores)
         });
 
+        router.get('/isplaying', (req, res) => {
+            let name = req.query.player;
+            let result: any = {}
+            result.result=false;
+            Object.keys(this.playerShip).forEach(key => {
+                let playerShip: NetPlayerShip = this.playerShip[key];
+                if (playerShip.name === name) {
+                    result.result=true;
+                }
+            });
+            res.json(result)
+        });
+
         router.get('/notify_end_game', (req, res) => {
             let playerId = req.query.player;
             let result: any = {}
