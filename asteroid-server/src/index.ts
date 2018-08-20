@@ -6,6 +6,8 @@ import * as express from "express"
 import {createServer, Server} from 'http';
 import * as SocketIO from "socket.io"
 import * as cors from 'cors';
+import LanceServerEngine from "./lance/LanceServerEngine";
+import LanceGameModel from "./lance/shared/LanceGameModel";
 
 ////////
 
@@ -24,18 +26,29 @@ let helloWorldService: HelloWorldService = new HelloWorldService();
 helloWorldService.start(expressApp);
 
 ////////
+let gameEngine:LanceGameModel = new LanceGameModel({ traceLevel: 1000 });
+//let ioSocket = io.of('/lance');
+let lanceServerEngine: LanceServerEngine = new LanceServerEngine(io, gameEngine, {
+    debug: {},
+    updateRate: 6,
+    timeoutInterval: 0 // no timeout
+});
+gameEngine.start();
+gameEngine.initWorld();
+lanceServerEngine.start();
 
+////////
 
 let distributedAssetsLocator: DistributedAssetsLocator = new DistributedAssetsLocator();
 distributedAssetsLocator.start(io);
-
 
 ////////
 let broadcastService:BroadcasterService = new BroadcasterService();
 broadcastService.start(io);
 
-
 ////////
 
 let asteroGame: AsteroGame = new AsteroGame();
 asteroGame.start(io,expressApp,distributedAssetsLocator,broadcastService);
+
+////////

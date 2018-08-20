@@ -115,7 +115,7 @@ class AsteroidGame extends React.Component<any, State> {
     };
 
     onResize = (width,height) => {
-        console.log(width+"/"+height)
+        //console.log(width+"/"+height)
         //resize overlay
         this.setState({
             overlayStyle: {

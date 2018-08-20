@@ -6,6 +6,9 @@ import {idService} from "../service/IDService";
 import {Identified} from "../service/network/Asset";
 import {Asteroid} from "../objects/Asteroid";
 import {Bullet} from "../objects/Bullet";
+import LanceGameModel from "../lance/shared/LanceGameModel";
+import LanceClientEngine from "../lance/LanceClientEngine";
+import Trace from 'lance-gg/es5/lib/Trace';
 
 declare var window: any;
 
@@ -30,6 +33,34 @@ export class GameScene extends Phaser.Scene {
         let parameters = phaserReactService.parameters;
         console.log("parameters : ", parameters);
         let apiServerAdd = parameters.apiServer;
+        /////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////
+        //LANCE TEST
+        /////////////////////////////////////////////////////////////
+        {
+            // sent to both game engine and client engine
+            const options = {
+                traceLevel: Trace.TRACE_NONE,
+                delayInputCount: 8,
+                scheduler: 'render-schedule',
+                matchmaker: apiServerAdd+"/asteroid-game/matchmaker",
+                syncOptions: {
+                    sync: 'extrapolate',
+                    localObjBending: 0.2,
+                    remoteObjBending: 0.5
+                }
+            };
+
+            // create a client engine and a game engine
+            const gameEngine = new LanceGameModel(options);
+            const clientEngine = new LanceClientEngine(gameEngine, options);
+
+            clientEngine.start();
+        }
+        /////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////
 
         phaserReactService.onResizeEvent((width, height) => {
             this.cameras.main.setSize(width,height);

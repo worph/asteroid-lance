@@ -171,6 +171,13 @@ export default class AsteroGame {
                 ok: 'ok',
             })
         });
+
+        router.get('/matchmaker', (req, res) => {
+            //let finalurl = req.protocol + '://' + req.get('host')+"/socket.io/lance";
+            let finalurl = req.protocol + '://' + req.get('host')+"/socket.io";
+            res.json({ serverURL: finalurl, status: 'ok' })
+        });
+
         this.expressApp.use('/asteroid-game', router);
 
         /////////////////////////////////////////////
