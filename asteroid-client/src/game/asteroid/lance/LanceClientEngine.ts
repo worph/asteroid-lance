@@ -13,6 +13,22 @@ export default class LanceClientEngine extends ClientEngine {
 
     start() {
         super.start();
+
+        // handle gui for game condition
+        this.gameEngine.on('objectDestroyed', (obj) => {
+            console.log('objectDestroyed');
+        });
+
+        this.gameEngine.once('renderer.ready', () => {
+            console.log('renderer.ready');
+            this.socket.emit('requestRestart');
+        });
     }
+
+    // extend ClientEngine connect to add own events
+    connect() {
+        return super.connect();
+    }
+
 
 }

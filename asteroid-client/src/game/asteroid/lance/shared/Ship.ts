@@ -1,12 +1,8 @@
 import BaseTypes from 'lance-gg/es5/serialize/BaseTypes';
 import DynamicObject from 'lance-gg/es5/serialize/DynamicObject';
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
-interface DynamicObjectInterface{
 
-}
-export default class Ship extends DynamicObject {
-    private id: number;
-    private position: TwoVector;
+export default class Ship extends DynamicObject{
 
     constructor(gameEngine, options, props){
         super(gameEngine, options, props);
@@ -29,6 +25,12 @@ export default class Ship extends DynamicObject {
 
     syncTo(other) {
         super.syncTo(other);
+    }
+
+    onAddToWorld(gameEngine) {
+    }
+
+    onRemoveFromWorld(gameEngine) {
     }
 
     destroy() {

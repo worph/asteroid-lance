@@ -1,9 +1,6 @@
-import BaseTypes from 'lance-gg/es5/serialize/BaseTypes';
 import DynamicObject from 'lance-gg/es5/serialize/DynamicObject';
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
-interface DynamicObjectInterface{
 
-}
 export default class Asteroid extends DynamicObject {
     private id: number;
     private position: TwoVector;
@@ -24,7 +21,7 @@ export default class Asteroid extends DynamicObject {
     }
 
     toString() {
-        return `Ship::${super.toString()}`;
+        return `Asteroid::${super.toString()}`;
     }
 
     syncTo(other) {

@@ -1,7 +1,8 @@
-
-
 import SimplePhysicsEngine from 'lance-gg/es5/physics/SimplePhysicsEngine';
 import GameEngine from 'lance-gg/es5/GameEngine';
+import Ship from "./Ship";
+import Asteroid from "./Asteroid";
+import Bullet from "./Bullet";
 
 export default class LanceGameModel extends GameEngine{
     private physicsEngine: any;
@@ -17,6 +18,9 @@ export default class LanceGameModel extends GameEngine{
     }
 
     registerClasses(serializer){
+        serializer.registerClass(Ship);
+        serializer.registerClass(Asteroid);
+        serializer.registerClass(Bullet);
     }
 
     initWorld(){
@@ -34,4 +38,8 @@ export default class LanceGameModel extends GameEngine{
     processInput(inputData, playerId, isServer) {
         super.processInput(inputData, playerId);
     };
+
+    addObjectToWorld(item: any) {
+        super.addObjectToWorld(item);
+    }
 }

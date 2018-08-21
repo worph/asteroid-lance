@@ -1,5 +1,5 @@
 
-import Renderer from 'lance-gg/es5/render/Renderer';
+import Renderer from 'lance/render/Renderer';
 
 export default class LanceModelRenderer extends Renderer {
     private gameEngine: any;
@@ -10,6 +10,5 @@ export default class LanceModelRenderer extends Renderer {
 
     draw(t, dt) {
         super.draw(t, dt);
-        console.log(this.gameEngine.world.objects)
     }
 }

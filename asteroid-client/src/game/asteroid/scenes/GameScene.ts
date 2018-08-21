@@ -44,7 +44,7 @@ export class GameScene extends Phaser.Scene {
                 traceLevel: Trace.TRACE_NONE,
                 delayInputCount: 8,
                 scheduler: 'render-schedule',
-                matchmaker: apiServerAdd+"/asteroid-game/matchmaker",
+                matchmaker: apiServerAdd+"/asteroid-lance/matchmaker",
                 syncOptions: {
                     sync: 'extrapolate',
                     localObjBending: 0.2,

@@ -27,14 +27,11 @@ helloWorldService.start(expressApp);
 
 ////////
 let gameEngine:LanceGameModel = new LanceGameModel({ traceLevel: 1000 });
-//let ioSocket = io.of('/lance');
-let lanceServerEngine: LanceServerEngine = new LanceServerEngine(io, gameEngine, {
+let lanceServerEngine: LanceServerEngine = new LanceServerEngine(expressApp,io, gameEngine, {
     debug: {},
     updateRate: 6,
     timeoutInterval: 0 // no timeout
 });
-gameEngine.start();
-gameEngine.initWorld();
 lanceServerEngine.start();
 
 ////////
