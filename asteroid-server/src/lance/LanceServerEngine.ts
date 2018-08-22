@@ -1,9 +1,9 @@
 import ServerEngine from 'lance-gg/es5/ServerEngine';
 import DynamicObject from 'lance-gg/es5/serialize/DynamicObject';
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
-import Ship from "./shared/Ship";
 
 import * as express from 'express';
+
 export default class LanceServerEngine extends ServerEngine {
     constructor(public expressApp,io,public gameEngine, inputOptions) {
         super(io.of('/lance'), gameEngine, inputOptions);
@@ -29,13 +29,7 @@ export default class LanceServerEngine extends ServerEngine {
     onPlayerConnected(socket) {
         super.onPlayerConnected(socket);
         console.log("player connected");
-
-        let makePlayerShip = () => {
-            this.makeShip(socket);
-        };
-
-        // handle client restart requests
-        setTimeout(makePlayerShip,0);
+        this.makeShip(socket);
     }
 
     onPlayerDisconnected(socketId, playerId) {
@@ -43,10 +37,10 @@ export default class LanceServerEngine extends ServerEngine {
     }
 
     private makeShip(playerId) {
-        let ship = new Ship(this.gameEngine, null, {
-            position: new TwoVector(10, 10)
+        /*let ship = new DynamicObject(this.gameEngine, null, {
+            position: new TwoVector(30, 30)
         });
-        this.gameEngine.addObjectToWorld(ship);
+        this.gameEngine.addObjectToWorld(ship);*/
         console.log("makeship");
     }
 }

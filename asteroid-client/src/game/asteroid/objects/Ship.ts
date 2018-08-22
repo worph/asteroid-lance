@@ -1,5 +1,5 @@
 import {Bullet} from "./Bullet";
-import {Identified} from "../service/network/Asset";
+import {Identified} from "../service/miniECS/Identified";
 
 let CONST = {
     SHIP_SIZE: 20,

@@ -1,6 +1,6 @@
 import * as SocketIO from "socket.io-client";
 import axios, {AxiosInstance} from 'axios'
-import {NetPlayerShip} from "./converters/dto/NetPlayerShip";
+import {NetPlayerShip} from "./NetPlayerShip";
 import {phaserReactService} from "../../phaser/PhaserReactService";
 
 export default class NetworkGameRules {

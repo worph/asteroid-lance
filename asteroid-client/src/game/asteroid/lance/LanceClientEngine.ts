@@ -1,11 +1,17 @@
 
 import ClientEngine from 'lance-gg/es5/ClientEngine';
-import LanceModelRenderer from "./LanceModelRenderer";
+import LanceModelRenderer from "./NetworkModel";
+import InputDefinition from "./shared/InputDefinition";
+import EventEmitter from 'eventemitter3';
+
+export interface ObjectCreationData{
+    assetId:string,
+    props:any
+}
 
 export default class LanceClientEngine extends ClientEngine {
-    private socket: any;
-    private gameEngine: any;
-    private messageIndex: number;
+
+    eventEmitter = new EventEmitter();
 
     constructor(gameEngine, options) {
         super(gameEngine, options, LanceModelRenderer);
@@ -13,15 +19,18 @@ export default class LanceClientEngine extends ClientEngine {
 
     start() {
         super.start();
-
-        // handle gui for game condition
-        this.gameEngine.on('objectDestroyed', (obj) => {
-            console.log('objectDestroyed');
+        this.gameEngine.on("objectAdded",(obj:any)=>{
+            if("assetId" in obj)
+            this.eventEmitter.emit(obj.assetId,obj);
         });
+    }
 
-        this.gameEngine.once('renderer.ready', () => {
-            console.log('renderer.ready');
-            this.socket.emit('requestRestart');
+    requestObjectCreation(option:ObjectCreationData):Promise<any>{
+        this.sendInput(InputDefinition.CREATE, option);
+        return new Promise<any>(resolve => {
+            this.eventEmitter.once(option.assetId,(obj)=>{
+                resolve(obj);
+            });
         });
     }
 
@@ -30,5 +39,9 @@ export default class LanceClientEngine extends ClientEngine {
         return super.connect();
     }
 
+
+    sendInput(input: string, inputOptions: any) {
+        super.sendInput(input,inputOptions);
+    }
 
 }

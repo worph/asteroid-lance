@@ -1,4 +1,4 @@
-import {Identified} from "../service/network/Asset";
+import {Identified} from "../service/miniECS/Identified";
 
 export class Bullet extends Phaser.GameObjects.Graphics implements Identified {
     private colors: number[];

@@ -64,7 +64,7 @@ class AsteroidGame extends React.Component<any, State> {
                 }
             });
             this.config = {
-                title: "Asteroid",
+                title: "NetAsteroid",
                 url: "",
                 version: "1.0",
                 width: offsetWidth,

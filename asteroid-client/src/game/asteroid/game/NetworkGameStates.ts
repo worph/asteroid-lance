@@ -1,60 +1,52 @@
-import {Bullet} from "../objects/Bullet";
 import {Ship} from "../objects/Ship";
 import {Asteroid} from "../objects/Asteroid";
 import NetworkGameRules from "./NetworkGameRules";
-import NetworkAssets from "../service/network/NetworkAssets";
-import {AsteroidPayloadConverter} from "./converters/AsteroidPayloadConverter";
-import {ShipPayloadConverter} from "./converters/ShipPayloadConverter";
-import {BulletPayloadConverter} from "./converters/BulletPayloadConverter";
-import {AssetConverter, IdentifiedConverter} from "../service/network/AssetConverter";
-import {ASSET_ACTION, Identified} from "../service/network/Asset";
-import NetworkAssetsManager from "../service/network/NetworkAssetsManager";
+import LanceGameModel from "../lance/shared/LanceGameModel";
+import LanceClientEngine from "../lance/LanceClientEngine";
+import Trace from 'lance-gg/es5/lib/Trace';
+import {MiniECS} from "../service/miniECS/MiniECS";
+import {LanceFatory} from "../lance/LanceFatory";
 
 export class NetworkGameStates {
 
     public networkGameManager: NetworkGameRules = new NetworkGameRules();
+    clientEngine: LanceClientEngine;
+    gameEngine: LanceGameModel;
 
     /* networked items model*/
-    public player: Ship;
-    public otherPlayer: { [id: string]: Ship; };
-    public asteroids: { [id: string]: Asteroid; };
+    public toFollow: Phaser.GameObjects.Graphics;
+    miniECS: MiniECS;
+    lanceFactory: LanceFatory;
 
-    public netWorkAssetManager: NetworkAssetsManager = new NetworkAssetsManager();
-
-    constructor(public scene: Phaser.Scene, public apiServerAdd: string, player: Ship, name: string) {
-        this.player = player;
-        this.otherPlayer = {};
-        this.asteroids = {};
-
-        let asteroidPayloadConverter: AsteroidPayloadConverter = new AsteroidPayloadConverter(this.scene, this.asteroids);
-        let shipPayloadConverter: ShipPayloadConverter = new ShipPayloadConverter(this.scene, this.player, this.otherPlayer);
-        let bulletPayloadConverter: BulletPayloadConverter = new BulletPayloadConverter(this.player, this.otherPlayer);
-
-        this.netWorkAssetManager.bootServices(apiServerAdd + "/broadcaster");
-        this.netWorkAssetManager.bootServices(apiServerAdd + "/distributed");
-        this.netWorkAssetManager.registerNetworkAssets("player/", apiServerAdd + "/broadcaster", shipPayloadConverter);
-        this.netWorkAssetManager.registerNetworkAssets("bullet/", apiServerAdd + "/broadcaster", bulletPayloadConverter);
-        this.netWorkAssetManager.registerNetworkAssets("asteroid/", apiServerAdd + "/distributed", asteroidPayloadConverter);
-
-        this.netWorkAssetManager.createAsset(this.player);
-
-        this.networkGameManager.start(apiServerAdd + "/asteroid", apiServerAdd, player.id, name);
+    getObjectToFollow():Phaser.GameObjects.Graphics{
+        return this.toFollow;
     }
 
-    createAsset(asset: Identified) {
-        this.netWorkAssetManager.createAsset(asset);
-    }
+    constructor(public scene: Phaser.Scene, public apiServerAdd: string) {
+        this.toFollow = null;
 
-    createOrUpdateAsset(asset: Identified) {
-        this.netWorkAssetManager.createOrUpdateAsset(asset);
-    }
+        {
+            //LANCE GG
+            // sent to both game engine and client engine
+            const options = {
+                traceLevel: Trace.TRACE_NONE,
+                delayInputCount: 8,
+                scheduler: 'render-schedule',
+                matchmaker: apiServerAdd+"/asteroid-lance/matchmaker",
+                syncOptions: {
+                    sync: 'extrapolate',
+                    localObjBending: 0.2,
+                    remoteObjBending: 0.5
+                }
+            };
 
-    updateAsset(asset: Identified) {
-        this.netWorkAssetManager.updateAsset(asset);
-    }
+            // create a client engine and a game engine
+            this.gameEngine = new LanceGameModel(options);
+            this.clientEngine = new LanceClientEngine(this.gameEngine, options);
+            this.lanceFactory = new LanceFatory(this.gameEngine,this.clientEngine);
+            this.miniECS = new MiniECS();
 
-    deleteAsset(asset: Identified) {
-        this.netWorkAssetManager.deleteAsset(asset);
+            this.clientEngine.start();
+        }
     }
-
 }

@@ -1,3 +1,4 @@
+/asteroid-client/src/**/*.js
 **/.idea
 **/node_modules
 asteroid-client/build

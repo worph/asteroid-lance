@@ -1,9 +1,6 @@
 import DynamicObject from 'lance-gg/es5/serialize/DynamicObject';
-import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 
-export default class Bullet extends DynamicObject {
-    private id: number;
-    private position: TwoVector;
+export default class NetShip extends DynamicObject{
 
     constructor(gameEngine, options, props){
         super(gameEngine, options, props);
@@ -21,7 +18,7 @@ export default class Bullet extends DynamicObject {
     }
 
     toString() {
-        return `Bullet::${super.toString()}`;
+        return `Ship::${super.toString()}`;
     }
 
     syncTo(other) {

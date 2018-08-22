@@ -1,42 +1,3 @@
-declare interface GraphicsParam{
-    scene:Phaser.Scene,opt:any
-}
-
-declare interface BodyState {
-    velocity:{
-        x:number,
-        y:number
-    }
-    angularVelocity:number
-}
-
-declare interface PhysicsParameters{
-    default?:string;
-    matter?:MatterJsParameters
-}
-
-declare interface MatterJsParameters{
-    //see GameConfig
-    debug?: boolean,
-    gravity?: {
-        x : number,
-        y: number
-    },
-    setBounds?: {
-        x: number,
-        y: number,
-        width: number,
-        height: number,
-        thickness: number
-    },
-    enableSleeping?: boolean
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 declare type CallCallback = (item: Phaser.GameObjects.GameObject)=>void;
 
 declare type GridAlignConfig = {
@@ -542,7 +503,7 @@ declare type GameConfig = {
     /**
      * [description]
      */
-    physics?: PhysicsParameters;
+    physics?: any;
 };
 
 declare type TimeStepCallback = (time: number, average: number, interpolation: number)=>void;

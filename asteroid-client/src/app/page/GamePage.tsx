@@ -14,7 +14,7 @@ export default class GamePage extends Component<{
         params:{memeid: "toto"}
         path:"/meme/:memeid"
         url:"/meme/toto"}*/
-        let player = match.params.player;
+        let player = match.params.toFollow;
         player = decodeURIComponent(player);
         phaserReactService.parameters = {
             name: player,
