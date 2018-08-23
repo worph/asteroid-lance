@@ -80,6 +80,27 @@ export default class LanceGameModel extends GameEngine{
             lanceAsset.assetId = options.assetId;
             this.addObjectToWorld(lanceAsset);
         }
+        if(inputData.input==InputDefinition.ROTATE_RIGHT){
+            let options = inputData.options;
+            let obj = this.world.queryObject({
+                id: options.id,
+            });
+            obj.isRotatingRight = options.state;
+        }
+        if(inputData.input==InputDefinition.ROTATE_LEFT){
+            let options = inputData.options;
+            let obj = this.world.queryObject({
+                id: options.id,
+            });
+            obj.isRotatingLeft = options.state;
+        }
+        if(inputData.input==InputDefinition.ACCELERATE){
+            let options = inputData.options;
+            let obj = this.world.queryObject({
+                id: options.id,
+            });
+            obj.isAccelerating = options.state;
+        }
     };
 
     addObjectToWorld(item: any) {

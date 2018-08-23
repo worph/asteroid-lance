@@ -1,7 +1,19 @@
 import DynamicObject from 'lance-gg/es5/serialize/DynamicObject';
 import BaseTypes from 'lance-gg/es5/serialize/BaseTypes';
 
-export default class LanceAsset extends DynamicObject{
+interface DynamicObjectInterface {
+    id:number,
+    position:{
+        x:number,
+        y:number
+    },
+    angle:number
+}
+
+export default class LanceAsset extends DynamicObject implements DynamicObjectInterface{
+    id: number;
+    position: { x: number; y: number };
+    angle: number;
     assetId:string;
     constructor(gameEngine,option, props){
         //do not toutch this constructor it is needed for serialisation

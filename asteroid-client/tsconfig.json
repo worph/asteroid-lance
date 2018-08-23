@@ -12,16 +12,12 @@
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
-    "noImplicitThis": false,
+    "noImplicitThis": true,
     "noImplicitAny": false,
     "strictNullChecks": false,
     "suppressImplicitAnyIndexErrors": false,
     "noUnusedLocals": false
   },
-  "files": [
-    "phaser.d.ts",
-    "images.d.ts"
-  ],
   "exclude": [
     "docker",
     "node_modules",

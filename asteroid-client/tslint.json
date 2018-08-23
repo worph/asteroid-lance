@@ -3,10 +3,10 @@
   "linterOptions": {
     "exclude": [
       "config/**/*.js",
-      "src/**/*.js",
       "node_modules/**/*.ts",
       "src/**/*.tsx",
-      "src/**/*.ts"
+      "src/**/*.ts",
+      "src/**/*.js"
     ]
   }
 }

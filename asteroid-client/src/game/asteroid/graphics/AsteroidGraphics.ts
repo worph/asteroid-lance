@@ -1,5 +1,3 @@
-import {Identified} from "../service/miniECS/Identified";
-
 let CONST = {
     ASTEROID_COUNT: 3,
     ASTEROID: {
@@ -24,48 +22,26 @@ let CONST = {
     }
 };
 
-export class Asteroid extends Phaser.GameObjects.Graphics implements Identified{
+export class AsteroidGraphics extends Phaser.GameObjects.Graphics {
     private currentScene: Phaser.Scene;
     private radius: number;
     private asteroidRadius: number;
     private sizeOfAsteroid: number;
     private numberOfSides: number;
-    public static ID_PREFIX:string = "asteroid/";
 
     public getRadius(): number {
         return this.radius;
     }
 
-    public getBody():  Phaser.Physics.Matter.Image {
-        let ret : any = this;
-        return ret;
-    }
-
-    constructor(params:GraphicsParam,public id:string,x:number,y:number,size:number) {
+    constructor(params:GraphicsParam,x:number,y:number,size:number) {
         super(params.scene, params.opt);
-        if(!this.id.startsWith(Asteroid.ID_PREFIX)){
-            throw new Error();
-        }
         // variables
         this.currentScene = params.scene;
         this.numberOfSides = 12;
         this.asteroidRadius = 0;
         this.sizeOfAsteroid = size;
 
-        // init ship
         this.initAsteroid(x, y, this.sizeOfAsteroid);
-
-        // physics
-        this.currentScene.matter.add.gameObject(this,{ shape: { type: 'circle', radius: this.asteroidRadius } });
-        //this.currentScene.physics.world.enable(this);
-        /*this.body.setCollideWorldBounds(true);
-        this.body.setBounce(1);
-        this.body.allowGravity = false;
-        this.body.setCircle(this.asteroidRadius);
-        this.body.setOffset(-this.asteroidRadius, -this.asteroidRadius);*/
-        this.getBody().setFriction(0,0,0);
-        this.getBody().setIgnoreGravity(true);
-        this.getBody().setBounce(1);
 
         this.currentScene.add.existing(this);
     }
@@ -124,24 +100,8 @@ export class Asteroid extends Phaser.GameObjects.Graphics implements Identified{
         this.y = aY;
     }
 
-    update(): void {
-    }
-
     public getSize(): number {
         return this.sizeOfAsteroid;
-    }
-
-    private getRandomVelocity(aMin: number, aMax: number): Phaser.Math.Vector2 {
-        return new Phaser.Math.Vector2(
-            Phaser.Math.RND.between(
-                this.getRndNumber(aMin, aMax),
-                this.getRndNumber(aMin, aMax)
-            ),
-            Phaser.Math.RND.between(
-                this.getRndNumber(aMin, aMax),
-                this.getRndNumber(aMin, aMax)
-            )
-        );
     }
 
     private getRndNumber(aMin: number, aMax: number): number {

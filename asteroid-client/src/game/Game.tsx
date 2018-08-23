@@ -112,6 +112,7 @@ class AsteroidGame extends React.Component<any, State> {
         if (this.state.redirectTo!=="") {
             return <Redirect to={this.state.redirectTo} />
         }
+        return <div></div>;
     };
 
     onResize = (width,height) => {
