@@ -6,4 +6,14 @@ export class Entity implements Identified{
     }
 
     component:Component[] = []
+
+    getComponentByType(type:any):Component{
+        let ret = null;
+        this.component.forEach((data)=>{
+            if(data instanceof type){
+                ret = data;
+            }
+        })
+        return ret;
+    }
 }

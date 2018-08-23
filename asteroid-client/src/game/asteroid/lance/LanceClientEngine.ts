@@ -3,7 +3,7 @@ import ClientEngine from 'lance-gg/es5/ClientEngine';
 import LanceRenderer from "./LanceRenderer";
 import InputDefinition from "./shared/InputDefinition";
 import {EventEmitter} from 'eventemitter3';
-import LanceAsset from "./shared/LanceAsset";
+import LanceAsset from "./shared/LancePhysic2DObject";
 import {ShipFactory} from "../objects/ShipFactory";
 
 export interface ObjectCreationData{

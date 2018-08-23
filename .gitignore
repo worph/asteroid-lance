@@ -6,3 +6,4 @@ asteroid-server/dist
 /asteroid-client/docker/www
 /asteroid-client/npm-debug.log
 /asteroid-server/*.log
+/asteroid-server/*.trace

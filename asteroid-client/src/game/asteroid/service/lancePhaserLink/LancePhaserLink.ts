@@ -21,7 +21,8 @@ export class LancePhaserLink {
             let body = value.physic.body;
             if(body) {
                 value.graphic.setPosition(body.position.x, body.position.y);
-                value.graphic.setAngle(body.angle+90);//repere change
+                //value.graphic.setAngle(body.angle+90);//repere change for dynamic object
+                value.graphic.setAngle((Phaser.Math.RAD_TO_DEG * body.angle)+90);
             }
         });
     }

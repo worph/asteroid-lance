@@ -3,6 +3,7 @@ import {NetworkGameStates} from "../game/NetworkGameStates";
 import {ShipGraphics} from "../graphics/ShipGraphics";
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {PlayerInputRule} from "../input/PlayerInputRule";
+import {PhaserGraphicComponent} from "../graphics/PhaserGraphicComponent";
 
 declare var window: any;
 
@@ -40,13 +41,12 @@ export class GameScene extends Phaser.Scene {
         }
 
         this.networkGameState = new NetworkGameStates(this, apiServerAdd);
-        setTimeout(()=>{
+        this.networkGameState.start().then(()=>{
             let entity = this.networkGameState.shipFactory.create();
-        },1000)
-        /*{
             //create camera
-            this.cameras.main.startFollow(this.networkGameState.toFollow, true, 0.05, 0.05);    //  Set the camera bounds to be the size of the image
-        }*/
+            let gcomp:PhaserGraphicComponent = entity.getComponentByType(PhaserGraphicComponent) as PhaserGraphicComponent;
+            this.cameras.main.startFollow(gcomp, true, 0.05, 0.05);    //  Set the camera bounds to be the size of the image
+        });
         this.fps = this.add.text(
             this.sys.canvas.width / 2,
             40,

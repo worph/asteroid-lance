@@ -1,8 +1,8 @@
-import SimplePhysicsEngine from 'lance-gg/es5/physics/SimplePhysicsEngine';
 import GameEngine from 'lance-gg/es5/GameEngine';
 import NetShip from "./NetShip";
 import DynamicObject from 'lance-gg/es5/serialize/DynamicObject';
-import LanceAsset from "./LanceAsset";
+import P2PhysicsEngine from 'lance-gg/es5/physics/P2PhysicsEngine';
+import LancePhysic2DObject from "./LancePhysic2DObject";
 import InputDefinition from "./InputDefinition";
 
 export default class LanceGameModel extends GameEngine{
@@ -11,18 +11,14 @@ export default class LanceGameModel extends GameEngine{
 
     constructor(options) {
         super(options);
-        this.physicsEngine = new SimplePhysicsEngine({
-            gameEngine: this,
-            collisions: {
-                type: 'brute'
-            }
-        });
+        this.physicsEngine = new P2PhysicsEngine({ gameEngine: this });
+        this.physicsEngine.world.defaultContactMaterial.friction = 0;
     }
 
     registerClasses(serializer){
         serializer.registerClass(DynamicObject);
         serializer.registerClass(NetShip);
-        serializer.registerClass(LanceAsset);
+        serializer.registerClass(LancePhysic2DObject);
     }
 
     initWorld(){
@@ -76,7 +72,7 @@ export default class LanceGameModel extends GameEngine{
         super.processInput(inputData, playerId);
         if(inputData.input==InputDefinition.CREATE){
             let options = inputData.options;
-            let lanceAsset = new LanceAsset(gameEngine,null,options.props);
+            let lanceAsset = new LancePhysic2DObject(gameEngine,null,options.props);
             lanceAsset.assetId = options.assetId;
             this.addObjectToWorld(lanceAsset);
         }
@@ -85,21 +81,27 @@ export default class LanceGameModel extends GameEngine{
             let obj = this.world.queryObject({
                 id: options.id,
             });
-            obj.isRotatingRight = options.state;
+            //obj.isRotatingRight = options.state;
+            obj.physicsObj.angle += 0.05;
+            obj.refreshFromPhysics();
         }
         if(inputData.input==InputDefinition.ROTATE_LEFT){
             let options = inputData.options;
             let obj = this.world.queryObject({
                 id: options.id,
             });
-            obj.isRotatingLeft = options.state;
+            //obj.isRotatingLeft = options.state;
+            obj.physicsObj.angle -= 0.05;
+            obj.refreshFromPhysics();
         }
         if(inputData.input==InputDefinition.ACCELERATE){
             let options = inputData.options;
             let obj = this.world.queryObject({
                 id: options.id,
             });
-            obj.isAccelerating = options.state;
+            //obj.isAccelerating = options.state;
+            obj.physicsObj.applyForceLocal([40, 0]);
+            obj.refreshFromPhysics();
         }
     };
 
@@ -107,7 +109,11 @@ export default class LanceGameModel extends GameEngine{
         super.addObjectToWorld(item);
     }
 
-    on(s: string, param2: (e:any)=>void) {
+    on(event: string, callback: (data:any)=>void) {
+        super.on(event,callback)
+    }
 
+    once(event: string, callback: (data:any)=>void) {
+        super.once(event,callback)
     }
 }

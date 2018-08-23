@@ -1,5 +1,5 @@
 import {Component} from "../service/miniECS/Component";
-import LanceAsset from "./shared/LanceAsset";
+import LanceAsset from "./shared/LancePhysic2DObject";
 import InputDefinition from "./shared/InputDefinition";
 import LanceClientEngine from "./LanceClientEngine";
 

@@ -3,7 +3,7 @@ import {PlayerInputRule} from "../input/PlayerInputRule";
 import {NetworkGameStates} from "../game/NetworkGameStates";
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {Entity} from "../service/miniECS/Entity";
-import LanceAsset from "../lance/shared/LanceAsset";
+import LanceAsset from "../lance/shared/LancePhysic2DObject";
 
 export class ShipFactory {
     public static readonly PREFIX:string = "ship";

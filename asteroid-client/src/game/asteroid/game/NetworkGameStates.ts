@@ -30,44 +30,45 @@ export class NetworkGameStates {
     public networkGameManager: NetworkGameRules;
 
     /* networked items model*/
-    public toFollow: Phaser.GameObjects.Graphics;
     shipFactory: ShipFactory;
 
-    getObjectToFollow(): Phaser.GameObjects.Graphics {
-        return this.toFollow;
+    constructor(private scene: Phaser.Scene, private apiServerAdd: string) {
     }
 
-    constructor(public scene: Phaser.Scene, public apiServerAdd: string) {
-        this.toFollow = null;
+    start():Promise<any>{
+        return new Promise(resolve => {
+            //LANCE GG
+            // sent to both game engine and client engine
+            const options = {
+                traceLevel: Lance.Trace.TRACE_WARN,
+                delayInputCount: 8,
+                scheduler: 'render-schedule',
+                matchmaker: this.apiServerAdd + "/asteroid-lance/matchmaker",
+                syncOptions: {
+                    sync: 'extrapolate',
+                    localObjBending: 0.2,
+                    remoteObjBending: 0.5
+                }
+            };
 
-        //LANCE GG
-        // sent to both game engine and client engine
-        const options = {
-            traceLevel: Lance.Trace.TRACE_WARN,
-            delayInputCount: 8,
-            scheduler: 'render-schedule',
-            matchmaker: apiServerAdd + "/asteroid-lance/matchmaker",
-            syncOptions: {
-                sync: 'extrapolate',
-                localObjBending: 0.2,
-                remoteObjBending: 0.5
-            }
-        };
+            this.shipFactory = new ShipFactory(this,this.scene);
 
-        this.shipFactory = new ShipFactory(this,this.scene);
+            // create a client engine and a game engine
+            this.gameEngine = new LanceGameModel(options);
+            this.gameModelControler = new LanceClientEngine(this.gameEngine, options,this.shipFactory);
+            this.lanceService = new LanceAssetService(this.gameEngine, this.gameModelControler);
+            this.lancePhaserLink = new LancePhaserLink();
+            this.miniECS = new MiniECS();
 
-        // create a client engine and a game engine
-        this.gameEngine = new LanceGameModel(options);
-        this.gameModelControler = new LanceClientEngine(this.gameEngine, options,this.shipFactory);
-        this.lanceService = new LanceAssetService(this.gameEngine, this.gameModelControler);
-        this.lancePhaserLink = new LancePhaserLink();
-        this.miniECS = new MiniECS();
+            this.keyMapper = new KeyMapper(this.scene);
+            this.networkGameManager = new NetworkGameRules();
 
-        this.keyMapper = new KeyMapper(scene);
-        this.networkGameManager = new NetworkGameRules();
-
-
-        this.gameModelControler.start();
+            this.gameModelControler.start();
+            this.gameEngine.once("postStep",()=>{
+                console.log("server ready");
+                resolve("server ready");
+            });
+        });
     }
 
     update(){
