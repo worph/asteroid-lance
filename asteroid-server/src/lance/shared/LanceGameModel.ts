@@ -3,9 +3,10 @@ import DynamicObject from 'lance-gg/es5/serialize/DynamicObject';
 import P2PhysicsEngine from 'lance-gg/es5/physics/P2PhysicsEngine';
 import LancePhysic2DObject from "./LancePhysic2DObject";
 import InputDefinition from "./InputDefinition";
+import {WallMaker} from "./WallMaker";
 
 export default class LanceGameModel extends GameEngine{
-    private physicsEngine: any;
+    physicsEngine: any;
     private world: any;
 
     constructor(options) {
@@ -21,10 +22,12 @@ export default class LanceGameModel extends GameEngine{
 
     initWorld(){
         super.initWorld({
-            worldWrap: true,
+            worldWrap: false,
             width: 1920,
             height: 1920
         });
+        let wallMaker = new WallMaker(this);
+        wallMaker.setBounds(0,0,1920,1920);
     }
 
     start() {

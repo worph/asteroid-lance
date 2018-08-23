@@ -68,7 +68,7 @@ export class NetworkGameStates {
                 setTimeout(()=>{
                     console.log("server ready");
                     resolve("server ready");
-                },0);
+                },1000);
             });
         });
     }
