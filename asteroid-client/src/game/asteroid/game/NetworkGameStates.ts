@@ -65,8 +65,10 @@ export class NetworkGameStates {
 
             this.gameModelControler.start();
             this.gameEngine.once("postStep",()=>{
-                console.log("server ready");
-                resolve("server ready");
+                setTimeout(()=>{
+                    console.log("server ready");
+                    resolve("server ready");
+                },0);
             });
         });
     }

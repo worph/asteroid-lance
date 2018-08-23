@@ -49,7 +49,21 @@ export class ShipFactory {
             opt: {}
         });
         let lancePhysicNetComponent = this.networkGameState.lanceService.create({
-            position: new TwoVector((Math.random()*100)+20, (Math.random()*100)+20)
+            position: new TwoVector((Math.random()*100)+20, (Math.random()*100)+20),
+            velocity: new TwoVector(0, 0),
+            angle:0,//rad
+            angleVelocity:0,
+            physic:{
+                body:{
+                    mass: 0.1, damping: 0, angularDamping: 0
+                },
+                shape:{
+                    type:"circle",
+                    radius: 30,
+                    collisionGroup: 1,
+                    collisionMask: 1
+                }
+            }
         },ShipFactory.PREFIX);
         this.checkAndAddShipId(lancePhysicNetComponent.assetId);
         let lancePhaserLinkComponent = this.networkGameState.lancePhaserLink.create(shipGraphics, lancePhysicNetComponent);

@@ -8,24 +8,24 @@ export class LancePhysicNetComponent implements Component{
     body : LanceAsset;
     client:LanceClientEngine;
 
-    rotateRight(state:boolean){
+    rotateRight(speed:number){
         this.client.sendInput(InputDefinition.ROTATE_RIGHT, {
             id:this.body.id,
-            state:state
+            speed:speed
         });
     }
 
-    rotateLeft(state:boolean){
+    rotateLeft(speed:number){
         this.client.sendInput(InputDefinition.ROTATE_LEFT, {
             id:this.body.id,
-            state:state
+            speed:speed
         });
     }
 
-    accelerate(state:boolean){
+    accelerate(vector:{x:number,y:number}){
         this.client.sendInput(InputDefinition.ACCELERATE, {
             id:this.body.id,
-            state:state
+            vector:vector
         });
     }
 }

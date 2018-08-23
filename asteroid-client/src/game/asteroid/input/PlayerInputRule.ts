@@ -7,13 +7,13 @@ export class PlayerInputRule extends InputComponent{
         super(keymapper);
         //find lance physic object associated to player and aplie action
         keymapper.action.on(KeyMapper.LEFT,(data)=>{
-            physic.rotateLeft(true);
+            physic.rotateLeft(0.05);
         });
         keymapper.action.on(KeyMapper.RIGHT,(data)=>{
-            physic.rotateRight(true);
+            physic.rotateRight(0.05);
         });
         keymapper.action.on(KeyMapper.BOOST,(data)=>{
-            physic.accelerate(true);
+            physic.accelerate({x:100,y:0});
         });
     }
 }

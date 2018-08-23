@@ -1,5 +1,4 @@
 import GameEngine from 'lance-gg/es5/GameEngine';
-import NetShip from "./NetShip";
 import DynamicObject from 'lance-gg/es5/serialize/DynamicObject';
 import P2PhysicsEngine from 'lance-gg/es5/physics/P2PhysicsEngine';
 import LancePhysic2DObject from "./LancePhysic2DObject";
@@ -17,7 +16,6 @@ export default class LanceGameModel extends GameEngine{
 
     registerClasses(serializer){
         serializer.registerClass(DynamicObject);
-        serializer.registerClass(NetShip);
         serializer.registerClass(LancePhysic2DObject);
     }
 
@@ -82,7 +80,7 @@ export default class LanceGameModel extends GameEngine{
                 id: options.id,
             });
             //obj.isRotatingRight = options.state;
-            obj.physicsObj.angle += 0.05;
+            obj.physicsObj.angle += options.speed;
             obj.refreshFromPhysics();
         }
         if(inputData.input==InputDefinition.ROTATE_LEFT){
@@ -91,7 +89,7 @@ export default class LanceGameModel extends GameEngine{
                 id: options.id,
             });
             //obj.isRotatingLeft = options.state;
-            obj.physicsObj.angle -= 0.05;
+            obj.physicsObj.angle -= options.speed;
             obj.refreshFromPhysics();
         }
         if(inputData.input==InputDefinition.ACCELERATE){
@@ -100,7 +98,7 @@ export default class LanceGameModel extends GameEngine{
                 id: options.id,
             });
             //obj.isAccelerating = options.state;
-            obj.physicsObj.applyForceLocal([40, 0]);
+            obj.physicsObj.applyForceLocal([options.vector.x,options.vector.y]);
             obj.refreshFromPhysics();
         }
     };
