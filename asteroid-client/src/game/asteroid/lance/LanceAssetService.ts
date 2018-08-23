@@ -18,9 +18,10 @@ export class LanceAssetService implements Service{
 
     create(props:any,prefixId:string = "none"):LancePhysicNetComponent{
         let lancePhysicNetComponent = new LancePhysicNetComponent();
+        lancePhysicNetComponent.assetId = prefixId+"/"+idService.makeidAlpha(32);
         lancePhysicNetComponent.client = this.clientEngine;
         this.clientEngine.requestObjectCreation({
-            assetId:prefixId+"/"+idService.makeidAlpha(32),
+            assetId:lancePhysicNetComponent.assetId,
             props:props
         }).then((value:LanceAsset) => {
             lancePhysicNetComponent.body = value;

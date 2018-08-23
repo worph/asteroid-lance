@@ -14,6 +14,7 @@ export interface ObjectCreationData{
 export default class LanceClientEngine extends ClientEngine {
 
     eventEmitter = new EventEmitter();
+    waitingObjects: {[id:string]:boolean} = {};//hashset
 
     constructor(public gameEngine, options,private shipFactory:ShipFactory) {
         super(gameEngine, options, LanceRenderer);
@@ -22,23 +23,29 @@ export default class LanceClientEngine extends ClientEngine {
     start() {
         super.start();
         this.gameEngine.on("objectAdded",(obj:any)=>{
-
             if(obj instanceof LanceAsset) {
-                this.eventEmitter.emit(obj.assetId,obj);
-                if(this.shipFactory.isValidNetBody(obj)) {
-                    this.shipFactory.createFromNetwork(obj);
+                if(obj.id <1000000) {//we ignore temporary objects
+                    if (this.waitingObjects[obj.assetId]) {
+                        this.eventEmitter.emit(obj.assetId, obj);
+                    } else if (this.shipFactory.isValidNetBody(obj)) {
+                        this.shipFactory.createFromNetwork(obj);
+                    } else {
+                        console.error("unknown object 1");
+                    }
                 }
             }else{
-                console.error("unknown object");
+                console.error("unknown object 2");
             }
         });
     }
 
 
     requestObjectCreation(option:ObjectCreationData):Promise<any>{
+        this.waitingObjects[option.assetId]=true;
         this.sendInput(InputDefinition.CREATE, option);
         return new Promise<any>(resolve => {
             this.eventEmitter.once(option.assetId,(obj)=>{
+                delete this.waitingObjects[option.assetId];
                 resolve(obj);
             });
         });

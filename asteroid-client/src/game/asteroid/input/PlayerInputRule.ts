@@ -10,7 +10,6 @@ export class PlayerInputRule extends InputComponent{
             physic.rotateLeft(true);
         });
         keymapper.action.on(KeyMapper.RIGHT,(data)=>{
-            console.log("right");
             physic.rotateRight(true);
         });
         keymapper.action.on(KeyMapper.BOOST,(data)=>{
