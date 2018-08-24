@@ -26,8 +26,8 @@ let helloWorldService: HelloWorldService = new HelloWorldService();
 helloWorldService.start(expressApp);
 
 ////////
-let gameEngine:LanceGameModel = new LanceGameModel({ traceLevel: 1000 });
-let lanceServerEngine: LanceServerEngine = new LanceServerEngine(expressApp,io, gameEngine, {
+let gameModel:LanceGameModel = new LanceGameModel({ traceLevel: 1000 });
+let lanceServerEngine: LanceServerEngine = new LanceServerEngine(expressApp,io, gameModel, {
     debug: {},
     updateRate: 6,
     timeoutInterval: 0 // no timeout
@@ -46,6 +46,6 @@ broadcastService.start(io);
 ////////
 
 let asteroGame: AsteroGame = new AsteroGame();
-asteroGame.start(io,expressApp,distributedAssetsLocator,broadcastService);
+asteroGame.start(io,expressApp);
 
 ////////
