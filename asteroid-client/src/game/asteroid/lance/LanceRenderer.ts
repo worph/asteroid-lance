@@ -1,6 +1,6 @@
 import Renderer from 'lance-gg/es5/render/Renderer';
 import LanceGameModel from "./shared/LanceGameModel";
-import LanceClientEngine from "./LanceClientEngine";
+import LanceClientEngine from "./LanceGameModelControler";
 
 export default class LanceRenderer extends Renderer {
     constructor(gameEngine:LanceGameModel, clientEngine:LanceClientEngine) {

@@ -1,6 +1,6 @@
 import {ShipGraphics} from "../graphics/ShipGraphics";
 import {PlayerInputRule} from "../input/PlayerInputRule";
-import {NetworkGameStates} from "../game/NetworkGameStates";
+import {GameStates} from "../game/GameStates";
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {Entity} from "../service/miniECS/Entity";
 import LanceAsset from "../lance/shared/LancePhysic2DObject";
@@ -15,7 +15,7 @@ export class ShipFactory {
         SIZE_RADIUS: 20,
     };
 
-    constructor(public networkGameState: NetworkGameStates, public scene: Phaser.Scene,private bulletFactory:BulletFactory) {
+    constructor(public networkGameState: GameStates, public scene: Phaser.Scene, private bulletFactory:BulletFactory) {
     }
 
     isValidNetBody(netBody:LanceAsset):boolean{

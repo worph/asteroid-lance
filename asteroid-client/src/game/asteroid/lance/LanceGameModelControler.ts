@@ -12,7 +12,7 @@ export interface ObjectCreationData{
     props:any
 }
 
-export default class LanceClientEngine extends ClientEngine {
+export default class LanceGameModelControler extends ClientEngine {
 
     eventEmitter = new EventEmitter();
     waitingObjects: {[id:string]:boolean} = {};//hashset

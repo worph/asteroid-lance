@@ -1,6 +1,6 @@
 import NetworkGameRules from "./NetworkGameRules";
 import LanceGameModel from "../lance/shared/LanceGameModel";
-import LanceClientEngine from "../lance/LanceClientEngine";
+import LanceClientEngine from "../lance/LanceGameModelControler";
 import {MiniECS} from "../service/miniECS/MiniECS";
 import {LanceAssetService} from "../lance/LanceAssetService";
 import {LancePhaserLink} from "../service/lancePhaserLink/LancePhaserLink";
@@ -8,14 +8,15 @@ import {KeyMapper} from "../input/KeyMapper";
 import {ShipFactory} from "../objects/ShipFactory";
 import Lance from "../lance/shared/Lance";
 import {BulletFactory} from "../objects/BulletFactory";
+import {AsteroidFactory} from "../objects/AsteroidFactory";
 
-export class NetworkGameStates {
+export class GameStates {
 
     ////////////////////////////////////
-    //Lance/Physic Pure
+    //Lance => Physic/Network Pure
     ////////////////////////////////////
     gameModelControler: LanceClientEngine;
-    gameEngine: LanceGameModel;
+    gameModel: LanceGameModel;
 
     ////////////////////////////////////
     //ECS
@@ -26,13 +27,18 @@ export class NetworkGameStates {
     keyMapper: KeyMapper; // input ECS service
 
     ////////////////////////////////////
+    //Game object factories
+    ////////////////////////////////////
+    shipFactory: ShipFactory;
+    bulletFactory: BulletFactory;
+    asteroidFactory: AsteroidFactory;
+
+    ////////////////////////////////////
     ////////////////////////////////////
 
     public networkGameManager: NetworkGameRules;
 
     /* networked items model*/
-    shipFactory: ShipFactory;
-    bulletFactory: BulletFactory;
 
     constructor(private scene: Phaser.Scene, private apiServerAdd: string) {
     }
@@ -55,11 +61,12 @@ export class NetworkGameStates {
 
             this.bulletFactory = new BulletFactory(this,this.scene);
             this.shipFactory = new ShipFactory(this,this.scene,this.bulletFactory);
+            this.asteroidFactory = new AsteroidFactory(this,this.scene);
 
             // create a client engine and a game engine
-            this.gameEngine = new LanceGameModel(options);
-            this.gameModelControler = new LanceClientEngine(this.gameEngine, options,this.shipFactory,this.bulletFactory);
-            this.lanceService = new LanceAssetService(this.gameEngine, this.gameModelControler);
+            this.gameModel = new LanceGameModel(options);
+            this.gameModelControler = new LanceClientEngine(this.gameModel, options,this.shipFactory,this.bulletFactory);
+            this.lanceService = new LanceAssetService(this.gameModel, this.gameModelControler);
             this.lancePhaserLink = new LancePhaserLink();
             this.miniECS = new MiniECS();
 
@@ -67,7 +74,7 @@ export class NetworkGameStates {
             this.networkGameManager = new NetworkGameRules();
 
             this.gameModelControler.start();
-            this.gameEngine.once("postStep",()=>{
+            this.gameModel.once("postStep",()=>{
                 setTimeout(()=>{
                     console.log("server ready");
                     resolve("server ready");

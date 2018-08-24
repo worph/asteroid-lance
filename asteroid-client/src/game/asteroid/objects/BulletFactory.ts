@@ -1,5 +1,5 @@
 import {PlayerInputRule} from "../input/PlayerInputRule";
-import {NetworkGameStates} from "../game/NetworkGameStates";
+import {GameStates} from "../game/GameStates";
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {Entity} from "../service/miniECS/Entity";
 import LanceAsset from "../lance/shared/LancePhysic2DObject";
@@ -16,7 +16,7 @@ export class BulletFactory {
         SIZE_RADIUS: 3,
     };
 
-    constructor(public networkGameState: NetworkGameStates, public scene: Phaser.Scene) {
+    constructor(public networkGameState: GameStates, public scene: Phaser.Scene) {
     }
 
     isValidNetBody(netBody:LanceAsset):boolean{

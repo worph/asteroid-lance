@@ -18,7 +18,7 @@ export default class LancePhysic2DObject extends PhysicalObject2D implements Dyn
     position: { x: number; y: number };
     angle: number;
     assetId:string;
-    constructor(private gameEngine,private option, private props){
+    constructor(private gameEngine,private option, public props){
         //do not toutch this constructor it is needed for serialisation
         super(gameEngine, option, props);
     }

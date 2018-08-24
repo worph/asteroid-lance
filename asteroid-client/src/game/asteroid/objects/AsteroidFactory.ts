@@ -1,17 +1,17 @@
-import {NetworkGameStates} from "../game/NetworkGameStates";
+import {GameStates} from "../game/GameStates";
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {Entity} from "../service/miniECS/Entity";
-import LanceAsset from "../lance/shared/LancePhysic2DObject";
+import LancePhysic2DObject from "../lance/shared/LancePhysic2DObject";
 import {AsteroidGraphics} from "../graphics/AsteroidGraphics";
 
 export class AsteroidFactory {
     public static readonly PREFIX:string = "asteroid";
     ids: {[id:string]:any} = {};//hashset
 
-    constructor(public networkGameState: NetworkGameStates, public scene: Phaser.Scene) {
+    constructor(public networkGameState: GameStates, public scene: Phaser.Scene) {
     }
 
-    isValidNetBody(netBody:LanceAsset):boolean{
+    isValidNetBody(netBody:LancePhysic2DObject):boolean{
         return netBody.assetId.startsWith(AsteroidFactory.PREFIX);
     }
     checkAndAddId(id:string){
@@ -21,13 +21,13 @@ export class AsteroidFactory {
             throw new Error();
         }
     }
-    createFromNetwork(netBody:LanceAsset):Entity {
+    createFromNetwork(netBody:LancePhysic2DObject):Entity {
         if(!this.isValidNetBody(netBody)){
             throw new Error;
         }
         this.checkAndAddId(netBody.assetId);
         let lancePhysicNetComponent = this.networkGameState.lanceService.createFromNetwork(netBody);
-        return this.internalCreateItem(lancePhysicNetComponent,0,0, );
+        return this.internalCreateItem(lancePhysicNetComponent,0,0,netBody.props.customData.asteroidSizeRadius);
     }
 
     internalCreateItem(lancePhysicNetComponent,x:number,y:number,sizeRadius:number){
@@ -59,6 +59,9 @@ export class AsteroidFactory {
                     collisionGroup: 1,
                     collisionMask: 1
                 }
+            },
+            customData:{
+                asteroidSizeRadius:sizeRadius
             }
         },AsteroidFactory.PREFIX);
         this.checkAndAddId(lancePhysicNetComponent.assetId);

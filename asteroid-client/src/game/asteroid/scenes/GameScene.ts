@@ -1,15 +1,12 @@
 import {phaserReactService} from "../../phaser/PhaserReactService";
-import {NetworkGameStates} from "../game/NetworkGameStates";
-import {ShipGraphics} from "../graphics/ShipGraphics";
-import TwoVector from 'lance-gg/es5/serialize/TwoVector';
-import {PlayerInputRule} from "../input/PlayerInputRule";
+import {GameStates} from "../game/GameStates";
 import {PhaserGraphicComponent} from "../graphics/PhaserGraphicComponent";
 
 declare var window: any;
 
 export class GameScene extends Phaser.Scene {
     private fps: Phaser.GameObjects.Text;
-    private networkGameState: NetworkGameStates;
+    private gameState: GameStates;
 
     constructor() {
         super({
@@ -26,6 +23,7 @@ export class GameScene extends Phaser.Scene {
         let parameters = phaserReactService.parameters;
         console.log("parameters : ", parameters);
         let apiServerAdd = parameters.apiServer;
+        let playerName = parameters.name;
 
         phaserReactService.onResizeEvent((width, height) => {
             this.cameras.main.setSize(width, height);
@@ -39,24 +37,30 @@ export class GameScene extends Phaser.Scene {
             sprite.setScale(worldBoundX / sprite.width, worldBoundY / sprite.height);
             this.cameras.main.setBounds(0, 0, worldBoundX, worldBoundY);
         }
+        {
+            // display FPS
+            this.fps = this.add.text(
+                this.sys.canvas.width / 2,
+                40,
+                "FPS: 60.00",
+                {fontSize: '32px', fill: '#FFFFFF'}
+            );
+        }
+        {
+            // setup game states
+            this.gameState = new GameStates(this, apiServerAdd);
+            this.gameState.start().then(() => {
+                let entity = this.gameState.shipFactory.create();
+                //create camera
+                let gcomp: PhaserGraphicComponent = entity.getComponentByType(PhaserGraphicComponent) as PhaserGraphicComponent;
+                this.cameras.main.startFollow(gcomp, true, 0.05, 0.05);    //  Set the camera bounds to be the size of the image
+            });
+        }
 
-        this.networkGameState = new NetworkGameStates(this, apiServerAdd);
-        this.networkGameState.start().then(()=>{
-            let entity = this.networkGameState.shipFactory.create();
-            //create camera
-            let gcomp:PhaserGraphicComponent = entity.getComponentByType(PhaserGraphicComponent) as PhaserGraphicComponent;
-            this.cameras.main.startFollow(gcomp, true, 0.05, 0.05);    //  Set the camera bounds to be the size of the image
-        });
-        this.fps = this.add.text(
-            this.sys.canvas.width / 2,
-            40,
-            "FPS: 60.00",
-            {fontSize: '32px', fill: '#FFFFFF'}
-        );
     }
 
     update(): void {
-        this.networkGameState.update();
+        this.gameState.update();
         this.fps.setText("FPS: " + this.sys.game.loop.actualFps.toFixed(2));
     }
 

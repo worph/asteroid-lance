@@ -1,6 +1,6 @@
 import {LancePhysicNetComponent} from "./LancePhysicNetComponent";
 import LanceGameModel from "./shared/LanceGameModel";
-import LanceClientEngine from "./LanceClientEngine";
+import LanceClientEngine from "./LanceGameModelControler";
 import {idService} from "../service/IDService";
 import LancePhysic2DObject from "./shared/LancePhysic2DObject";
 import {Service} from "../service/miniECS/Service";
