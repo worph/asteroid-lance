@@ -4,6 +4,7 @@ export class KeyMapper {
     public action = new EventEmitter<string>();
 
     private shootKey: Phaser.Input.Keyboard.Key;
+    private shootKeyState:boolean = false;
     private cursors: CursorKeys;
     public static readonly SHOOT = "SHOOT";
     public static readonly BOOST = "BOOST";
@@ -50,17 +51,24 @@ export class KeyMapper {
 
     private handleInput(): void {
         if (this.cursors.up.isDown) {
-            this.action.emit(KeyMapper.BOOST,"ok");
+            //repeat mode
+            this.action.emit(KeyMapper.BOOST,{});
         }
         //TODO https://labs.phaser.io/edit.html?src=src\physics\matterjs\rotate%20body%20with%20cursors.js
         if (this.cursors.right.isDown) {
-            this.action.emit(KeyMapper.RIGHT,"ok");
+            //repeat mode
+            this.action.emit(KeyMapper.RIGHT,{});
         } else if (this.cursors.left.isDown) {
-            this.action.emit(KeyMapper.LEFT,"ok");
+            //repeat mode
+            this.action.emit(KeyMapper.LEFT,{});
         }
 
-        if (this.shootKey.isDown) {
-            this.action.emit(KeyMapper.SHOOT,"ok");
+        if (this.shootKey.isDown && !this.shootKeyState) {
+            this.shootKeyState=true;
+            this.action.emit(KeyMapper.SHOOT,{});
+        }
+        if (this.shootKey.isUp){
+            this.shootKeyState=false;
         }
     }
 

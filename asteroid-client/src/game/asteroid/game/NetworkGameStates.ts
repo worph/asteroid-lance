@@ -7,6 +7,7 @@ import {LancePhaserLink} from "../service/lancePhaserLink/LancePhaserLink";
 import {KeyMapper} from "../input/KeyMapper";
 import {ShipFactory} from "../objects/ShipFactory";
 import Lance from "../lance/shared/Lance";
+import {BulletFactory} from "../objects/BulletFactory";
 
 export class NetworkGameStates {
 
@@ -31,6 +32,7 @@ export class NetworkGameStates {
 
     /* networked items model*/
     shipFactory: ShipFactory;
+    bulletFactory: BulletFactory;
 
     constructor(private scene: Phaser.Scene, private apiServerAdd: string) {
     }
@@ -51,11 +53,12 @@ export class NetworkGameStates {
                 }
             };
 
-            this.shipFactory = new ShipFactory(this,this.scene);
+            this.bulletFactory = new BulletFactory(this,this.scene);
+            this.shipFactory = new ShipFactory(this,this.scene,this.bulletFactory);
 
             // create a client engine and a game engine
             this.gameEngine = new LanceGameModel(options);
-            this.gameModelControler = new LanceClientEngine(this.gameEngine, options,this.shipFactory);
+            this.gameModelControler = new LanceClientEngine(this.gameEngine, options,this.shipFactory,this.bulletFactory);
             this.lanceService = new LanceAssetService(this.gameEngine, this.gameModelControler);
             this.lancePhaserLink = new LancePhaserLink();
             this.miniECS = new MiniECS();

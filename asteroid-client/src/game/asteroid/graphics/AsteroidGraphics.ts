@@ -1,3 +1,5 @@
+import {PhaserGraphicComponent} from "./PhaserGraphicComponent";
+
 let CONST = {
     ASTEROID_COUNT: 3,
     ASTEROID: {
@@ -22,7 +24,7 @@ let CONST = {
     }
 };
 
-export class AsteroidGraphics extends Phaser.GameObjects.Graphics {
+export class AsteroidGraphics extends PhaserGraphicComponent {
     private currentScene: Phaser.Scene;
     private radius: number;
     private asteroidRadius: number;
@@ -33,7 +35,7 @@ export class AsteroidGraphics extends Phaser.GameObjects.Graphics {
         return this.radius;
     }
 
-    constructor(params:GraphicsParam,x:number,y:number,size:number) {
+    constructor(params:GraphicsParam,size:number) {
         super(params.scene, params.opt);
         // variables
         this.currentScene = params.scene;
@@ -41,7 +43,7 @@ export class AsteroidGraphics extends Phaser.GameObjects.Graphics {
         this.asteroidRadius = 0;
         this.sizeOfAsteroid = size;
 
-        this.initAsteroid(x, y, this.sizeOfAsteroid);
+        this.initAsteroid(0, 0, this.sizeOfAsteroid);
 
         this.currentScene.add.existing(this);
     }

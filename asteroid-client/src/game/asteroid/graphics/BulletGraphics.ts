@@ -1,9 +1,12 @@
-export class Bullet extends Phaser.GameObjects.Graphics {
+import {PhaserGraphicComponent} from "./PhaserGraphicComponent";
+import {BulletFactory} from "../objects/BulletFactory";
+
+export class BulletGraphics extends PhaserGraphicComponent {
     private colors: number[];
     private selectedColor: number;
     private currentScene: Phaser.Scene;
 
-    constructor(params:GraphicsParam,x:number,y:number,rotation:number) {
+    constructor(params:GraphicsParam,x:number,y:number) {
         super(params.scene, params.opt);
 
         // variables
@@ -18,14 +21,12 @@ export class Bullet extends Phaser.GameObjects.Graphics {
         // init bullet
         this.x = x;
         this.y = y;
-        let velocity = new Phaser.Math.Vector2(
-            Math.cos(rotation - Math.PI / 2),
-            Math.sin(rotation - Math.PI / 2)
-        );
-        velocity.scale(15);
+
         // define bullet graphics and draw it
         this.fillStyle(this.selectedColor, 1);
-        this.fillCircle(0, 0, 3);
+        this.fillCircle(0, 0, BulletFactory.CONST.SIZE_RADIUS);
+
+        this.currentScene.add.existing(this);
     }
 
 }

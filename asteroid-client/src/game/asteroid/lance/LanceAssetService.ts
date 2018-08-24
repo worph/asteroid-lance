@@ -23,7 +23,7 @@ export class LanceAssetService implements Service{
         this.clientEngine.requestObjectCreation({
             assetId:lancePhysicNetComponent.assetId,
             props:props
-        }).then((value:LancePhysic2DObject) => {
+        },(value:LancePhysic2DObject) => {
             lancePhysicNetComponent.body = value;
         });
         return lancePhysicNetComponent;

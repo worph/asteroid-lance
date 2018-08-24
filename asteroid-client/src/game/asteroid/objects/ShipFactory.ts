@@ -4,12 +4,18 @@ import {NetworkGameStates} from "../game/NetworkGameStates";
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {Entity} from "../service/miniECS/Entity";
 import LanceAsset from "../lance/shared/LancePhysic2DObject";
+import {BulletFactory} from "./BulletFactory";
 
 export class ShipFactory {
     public static readonly PREFIX:string = "ship";
     shipIds: {[id:string]:any} = {};//hashset
+    static readonly CONST:{
+        SIZE_RADIUS:number
+    } = {
+        SIZE_RADIUS: 20,
+    };
 
-    constructor(public networkGameState: NetworkGameStates, public scene: Phaser.Scene) {
+    constructor(public networkGameState: NetworkGameStates, public scene: Phaser.Scene,private bulletFactory:BulletFactory) {
     }
 
     isValidNetBody(netBody:LanceAsset):boolean{
@@ -59,7 +65,7 @@ export class ShipFactory {
                 },
                 shape:{
                     type:"circle",
-                    radius: 30,
+                    radius: ShipFactory.CONST.SIZE_RADIUS,
                     collisionGroup: 1,
                     collisionMask: 1
                 }
@@ -67,7 +73,7 @@ export class ShipFactory {
         },ShipFactory.PREFIX);
         this.checkAndAddShipId(lancePhysicNetComponent.assetId);
         let lancePhaserLinkComponent = this.networkGameState.lancePhaserLink.create(shipGraphics, lancePhysicNetComponent);
-        let playerInputRule = new PlayerInputRule(this.networkGameState.keyMapper, lancePhysicNetComponent);
+        let playerInputRule = new PlayerInputRule(this.networkGameState.keyMapper, lancePhysicNetComponent,this.bulletFactory);
         ship.component.push(shipGraphics);
         ship.component.push(playerInputRule);
         ship.component.push(lancePhysicNetComponent);
