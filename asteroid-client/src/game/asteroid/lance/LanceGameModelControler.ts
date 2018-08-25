@@ -1,12 +1,15 @@
 
 import ClientEngine from 'lance-gg/es5/ClientEngine';
 import LanceRenderer from "./LanceRenderer";
-import InputDefinition from "asteroid-common/dist/lance/InputDefinition";
-import {EventEmitter} from 'eventemitter3';
-import LanceAsset from "asteroid-common/dist/lance/LancePhysic2DObject";
-import {ShipFactory} from "../objects/ShipFactory";
-import {BulletFactory} from "../objects/BulletFactory";
-import {AsteroidFactory} from "../objects/AsteroidFactory";
+import {LanceNetworkEntity} from "asteroid-common/dist/lance/ecs/LanceNetworkEntity";
+import {AssetIDGenerator} from "asteroid-common/dist/lance/const/AssetIDGenerator";
+import {ShipGraphics} from "../graphics/ShipGraphics";
+import {LancePhaserLink} from "../service/lancePhaserLink/LancePhaserLink";
+import LancePhysic2DObject from "asteroid-common/dist/lance/component/LancePhysic2DObject";
+import {PlayerInputRule} from "../input/PlayerInputRule";
+import {KeyMapper} from "../input/KeyMapper";
+import {LanceNetworkComponent} from "asteroid-common/dist/lance/ecs/LanceNetworkComponent";
+import {MiniECS} from "asteroid-common/dist/miniECS/MiniECS";
 
 export interface ObjectCreationData{
     assetId:string,
@@ -15,54 +18,45 @@ export interface ObjectCreationData{
 
 export default class LanceGameModelControler extends ClientEngine {
 
-    eventEmitter = new EventEmitter();
-    waitingObjects: {[id:string]:boolean} = {};//hashset
-
-    constructor(public gameEngine, options,private shipFactory:ShipFactory,private bulletFactory:BulletFactory,private asteroidFactory:AsteroidFactory) {
+    constructor(public gameEngine, options,private scene: Phaser.Scene,private lancePhaserLink: LancePhaserLink,private keyMapper: KeyMapper, private ecs: MiniECS) {
         super(gameEngine, options, LanceRenderer);
     }
 
     start() {
         super.start();
         this.gameEngine.on("objectAdded",(obj:any)=>{
-            if(obj instanceof LanceAsset) {
-                if (this.waitingObjects[obj.assetId]) {
-                    this.eventEmitter.emit(obj.assetId, obj);
-                } else if (this.shipFactory.isValidNetBody(obj)) {
-                    this.shipFactory.createFromNetwork(obj);
-                } else if (this.bulletFactory.isValidNetBody(obj)) {
-                    this.bulletFactory.createFromNetwork(obj);
-                } else if (this.asteroidFactory.isValidNetBody(obj)) {
-                    this.asteroidFactory.createFromNetwork(obj);
-                } else {
-                    console.error("unknown asset : "+obj.assetId);
+            if("getComponentType" in obj){
+                let lanceNetworkComponent:LanceNetworkComponent = obj as LanceNetworkComponent;
+                let parentEntityId = lanceNetworkComponent.getParentEntityId();
+                let entity = this.ecs.getEntity(parentEntityId);
+                entity.addComponent(lanceNetworkComponent);
+            }
+            if(obj instanceof LanceNetworkEntity){
+                let lanceNetworkEntity:LanceNetworkEntity = obj as LanceNetworkEntity;
+                this.ecs.addEntity(lanceNetworkEntity);
+                if(lanceNetworkEntity.getEntityId().startsWith(AssetIDGenerator.SHIP_PREFIX)){
+                    let ship = lanceNetworkEntity;
+                    //create player ship
+                    let shipGraphics = new ShipGraphics({
+                        scene: this.scene,
+                        opt: {}
+                    });
+                    obj.onceComponentType("LancePhysic2DObject",(bodyA)=>{
+                        let body = bodyA as LancePhysic2DObject;
+                        let lancePhaserLinkComponent = this.lancePhaserLink.create(shipGraphics,body );
+                        let playerInputRule = new PlayerInputRule(this.keyMapper,body.id,this);
+                        ship.component.push(shipGraphics);
+                        ship.component.push(playerInputRule);
+                        ship.component.push(lancePhaserLinkComponent);
+                    });
                 }
-            }else{
-                console.error("unknown object");
             }
         });
     }
 
-
-    requestObjectCreation(option:ObjectCreationData,callback:(obj:any)=>void):void{
-        this.waitingObjects[option.assetId]=true;
-        this.sendInput(InputDefinition.CREATE, option);
-        this.eventEmitter.once(option.assetId,(obj)=>{
-            callback(obj);//temporary object
-            if(obj.id >=1000000) {
-                this.eventEmitter.once(option.assetId,(obj)=>{
-                    delete this.waitingObjects[option.assetId];
-                    callback(obj);//final object
-                });
-            }
-        });
-    }
-
-    // extend ClientEngine connect to add own events
     connect() {
         return super.connect();
     }
-
 
     sendInput(input: string, inputOptions: any) {
         super.sendInput(input,inputOptions);

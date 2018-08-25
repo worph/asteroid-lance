@@ -24,7 +24,7 @@ export class BulletGraphics extends PhaserGraphicComponent {
 
         // define bullet graphics and draw it
         this.fillStyle(this.selectedColor, 1);
-        this.fillCircle(0, 0, BulletFactory.CONST.SIZE_RADIUS);
+        this.fillCircle(0, 0, 3);//TODO BulletFactory.CONST.SIZE_RADIUS
 
         this.currentScene.add.existing(this);
     }

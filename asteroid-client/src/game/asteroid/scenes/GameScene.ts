@@ -52,10 +52,12 @@ export class GameScene extends Phaser.Scene {
             // setup game states
             this.gameState = new GameStates(this, apiServerAdd);
             this.gameState.start().then(() => {
+                /*
+                TODO move to render
                 let entity = this.gameState.shipFactory.create();
                 //create camera
                 let gcomp: PhaserGraphicComponent = entity.getComponentByType(PhaserGraphicComponent) as PhaserGraphicComponent;
-                this.cameras.main.startFollow(gcomp, true, 0.05, 0.05);    //  Set the camera bounds to be the size of the image
+                this.cameras.main.startFollow(gcomp, true, 0.05, 0.05);    //  Set the camera bounds to be the size of the image*/
             });
         }
     }

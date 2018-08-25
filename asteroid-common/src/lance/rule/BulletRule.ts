@@ -1,7 +1,7 @@
 
-import LanceGameModel from "../../../asteroid-common/src/lance/LanceGameModel";
-import LancePhysic2DObject from "../../../asteroid-common/src/lance/LancePhysic2DObject";
-import {AssetIDGenerator} from "../../../asteroid-common/src/lance/AssetIDGenerator";
+import LanceGameModel from "../LanceGameModel";
+import LancePhysic2DObject from "../component/LancePhysic2DObject";
+import {AssetIDGenerator} from "../const/AssetIDGenerator";
 
 export default class BulletRule {
 
@@ -15,9 +15,9 @@ export default class BulletRule {
             let object = this.gameModel.world.objects[key];
             if(object instanceof LancePhysic2DObject){
                 let asset = object as LancePhysic2DObject;
-                if(asset.assetId.startsWith(AssetIDGenerator.BULLET_PREFIX)){
+                /*if(asset.assetId.startsWith(AssetIDGenerator.BULLET_PREFIX)){
                     //reduce life span
-                }
+                }*/
             }
         });
     }

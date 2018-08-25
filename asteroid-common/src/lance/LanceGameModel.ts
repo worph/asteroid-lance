@@ -1,39 +1,68 @@
 import GameEngine from 'lance-gg/es5/GameEngine';
 import DynamicObject from 'lance-gg/es5/serialize/DynamicObject';
 import P2PhysicsEngine from 'lance-gg/es5/physics/P2PhysicsEngine';
-import LancePhysic2DObject from "./LancePhysic2DObject";
-import InputDefinition from "./InputDefinition";
-import {WallMaker} from "./WallMaker";
+import LancePhysic2DObject from "./component/LancePhysic2DObject";
+import InputDefinition from "./const/InputDefinition";
+import {WallMaker} from "./rule/WallMaker";
+import AsteroidCreationRule from "./rule/AsteroidCreationRule";
+import BulletRule from "./rule/BulletRule";
+import {PlayerConnexionRule} from "./rule/PlayerConnexionRule";
+import {ShipFactory} from "./object/ShipFactory";
+import {LanceNetworkEntity} from "./ecs/LanceNetworkEntity";
 
-export default class LanceGameModel extends GameEngine{
+export default class LanceGameModel extends GameEngine {
     physicsEngine: any;
     world: any;
+    worldWidth = 1920;
+    worldHeight = 1920;
+
+    private asteroidCreationRule: AsteroidCreationRule;
+    private bulletRule: BulletRule;
+    private shipFactory: ShipFactory;
+    private playerConnexionRule: PlayerConnexionRule;
 
     constructor(options) {
         super(options);
-        this.physicsEngine = new P2PhysicsEngine({ gameEngine: this });
+        this.physicsEngine = new P2PhysicsEngine({gameEngine: this});
         this.physicsEngine.world.defaultContactMaterial.friction = 0;
+
+        this.shipFactory = new ShipFactory(this);
+
+        /////////////////////////////////////////////
+        //Set up rules
+        /////////////////////////////////////////////
+
+        //TODO reenable
+        //this.asteroidCreationRule = new AsteroidCreationRule(this.worldWidth, this.worldHeight, this);
+        //this.bulletRule = new BulletRule(this);
+        this.playerConnexionRule = new PlayerConnexionRule(this,this.shipFactory);
+
+        this.on("postStep",()=>{
+            this.update();
+        });
     }
 
-    registerClasses(serializer){
+    registerClasses(serializer) {
         serializer.registerClass(DynamicObject);
         serializer.registerClass(LancePhysic2DObject);
+        serializer.registerClass(LanceNetworkEntity);
     }
 
-    initWorld(){
+    initWorld() {
         super.initWorld({
             worldWrap: false,
-            width: 1920,
-            height: 1920
+            width: this.worldWidth,
+            height: this.worldHeight
         });
         let wallMaker = new WallMaker(this);
-        wallMaker.setBounds(0,0,1920,1920);
+        wallMaker.setBounds(0, 0, this.worldWidth, this.worldHeight);
     }
 
     start() {
         super.start();
         this.on('collisionStart', e => {
             /*
+            //TODO put this logic in an external class
             //TODO physic collision rule
             this.physicService.eventEmitter.on(this.networkGameState.toFollow.id, (body: Identified) => {
                 //you touch something (except bullet) => you die
@@ -69,15 +98,10 @@ export default class LanceGameModel extends GameEngine{
     };
 
     processInput(inputData, playerId, isServer) {
+        //TODO put this logic in an external class
         let gameEngine = this;
         super.processInput(inputData, playerId);
-        if(inputData.input==InputDefinition.CREATE){
-            let options = inputData.options;
-            let lanceAsset = new LancePhysic2DObject(gameEngine,null,options.props);
-            lanceAsset.assetId = options.assetId;
-            this.addObjectToWorld(lanceAsset);
-        }
-        if(inputData.input==InputDefinition.ROTATE_RIGHT){
+        if (inputData.input == InputDefinition.ROTATE_RIGHT) {
             let options = inputData.options;
             let obj = this.world.queryObject({
                 id: options.id,
@@ -85,8 +109,7 @@ export default class LanceGameModel extends GameEngine{
             //obj.isRotatingRight = options.state;
             obj.physicsObj.angle += options.speed;
             obj.refreshFromPhysics();
-        }
-        if(inputData.input==InputDefinition.ROTATE_LEFT){
+        }else if (inputData.input == InputDefinition.ROTATE_LEFT) {
             let options = inputData.options;
             let obj = this.world.queryObject({
                 id: options.id,
@@ -94,15 +117,16 @@ export default class LanceGameModel extends GameEngine{
             //obj.isRotatingLeft = options.state;
             obj.physicsObj.angle -= options.speed;
             obj.refreshFromPhysics();
-        }
-        if(inputData.input==InputDefinition.ACCELERATE){
+        }else if (inputData.input == InputDefinition.ACCELERATE) {
             let options = inputData.options;
             let obj = this.world.queryObject({
                 id: options.id,
             });
             //obj.isAccelerating = options.state;
-            obj.physicsObj.applyForceLocal([options.vector.x,options.vector.y]);
+            obj.physicsObj.applyForceLocal([options.vector.x, options.vector.y]);
             obj.refreshFromPhysics();
+        }else{
+            console.error("unkown input");
         }
     };
 
@@ -110,11 +134,17 @@ export default class LanceGameModel extends GameEngine{
         super.addObjectToWorld(item);
     }
 
-    on(event: string, callback: (data:any)=>void) {
-        super.on(event,callback)
+    on(event: string, callback: (data: any) => void) {
+        super.on(event, callback)
     }
 
-    once(event: string, callback: (data:any)=>void) {
-        super.once(event,callback)
+    once(event: string, callback: (data: any) => void) {
+        super.once(event, callback)
+    }
+
+    update(): void {
+        //TODO reenable
+        //this.asteroidCreationRule.update();
+        //this.bulletRule.update();
     }
 }

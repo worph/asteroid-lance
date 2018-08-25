@@ -1,4 +1,4 @@
-import LanceGameModel from "./LanceGameModel";
+import LanceGameModel from "../LanceGameModel";
 
 export class WallMaker {
     private walls: { [id: string]: any } = {};

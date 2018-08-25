@@ -26,7 +26,7 @@ export default class LanceServerEngine extends ServerEngine {
 
     onPlayerConnected(socket) {
         super.onPlayerConnected(socket);
-        console.log("player connected : "+socket);
+        console.log("player connected");
     }
 
     onPlayerDisconnected(socketId, playerId) {

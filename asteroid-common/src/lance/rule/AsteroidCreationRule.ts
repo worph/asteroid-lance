@@ -1,7 +1,7 @@
-import LanceGameModel from "../../../asteroid-common/src/lance/LanceGameModel";
-import LancePhysic2DObject from "asteroid-common/dist/lance/LancePhysic2DObject";
-import {AssetIDGenerator} from "asteroid-common/dist/lance/AssetIDGenerator";
+import LanceGameModel from "../LanceGameModel";
+import LancePhysic2DObject from "../component/LancePhysic2DObject";
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
+import {AssetIDGenerator} from "../const/AssetIDGenerator";
 
 let CONST = {
     ASTEROID_COUNT: 3,
@@ -65,12 +65,12 @@ export default class AsteroidCreationRule {
                 }
             };
             let asteroid = new LancePhysic2DObject(this.gameModel, null,props);
-            asteroid.assetId = AssetIDGenerator.generateAssetID(AssetIDGenerator.ASTEROID_PREFIX);
+            /*asteroid.assetId = AssetIDGenerator.generateAssetID(AssetIDGenerator.ASTEROID_PREFIX);
             asteroid.setCustomData({
                 asteroidSizeOrder:data.sizeOrder,
                 asteroidSeed:data.asteroidSeed,
                 points:data.points
-            });
+            });*/
             this.gameModel.addObjectToWorld(asteroid);
         };
     }
@@ -82,9 +82,9 @@ export default class AsteroidCreationRule {
             let object = this.gameModel.world.objects[key];
             if(object instanceof LancePhysic2DObject){
                 let asset = object as LancePhysic2DObject;
-                if(asset.assetId.startsWith(AssetIDGenerator.ASTEROID_PREFIX)){
+                /*if(asset.assetId.startsWith(AssetIDGenerator.ASTEROID_PREFIX)){
                     asteroidCount++;
-                }
+                }*/
             }
         });
         if (asteroidCount === 0) {

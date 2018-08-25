@@ -1,4 +1,4 @@
-import {idService} from "../service/IDService";
+import {idService} from "../../service/IDService";
 
 export class AssetIDGenerator{
 

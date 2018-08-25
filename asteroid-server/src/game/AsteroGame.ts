@@ -2,11 +2,7 @@ import {NetPlayerShip} from "./NetPlayerShip";
 
 import * as SocketIO from "socket.io";
 import * as express from 'express';
-import AsteroidCreationRule from "./AsteroidCreationRule";
-import LancePhysic2DObject from "../../../asteroid-common/src/lance/LancePhysic2DObject";
-import LanceGameModel from "../../../asteroid-common/src/lance/LanceGameModel";
-import {AssetIDGenerator} from "../../../asteroid-common/src/lance/AssetIDGenerator";
-import BulletRule from "./BulletRule";
+import LanceGameModel from "asteroid-common/dist/lance/LanceGameModel";
 
 interface NVMFormat {
     scores: { [id: string]: number; }
@@ -25,22 +21,12 @@ export default class AsteroGame {
     io: SocketIO.Server;
     private expressApp: any;
     static readonly PLAYERSHIP_NOTIFY: string = "playership";
-    private asteroidCreationRule: AsteroidCreationRule;
     private gameModel: LanceGameModel;
-    private bulletRule: BulletRule;
 
     start(io: SocketIO.Server, expressApp: any,gameModel:LanceGameModel) {
         this.io = io.of('/asteroid');
         this.expressApp = expressApp;
         this.gameModel = gameModel;
-
-
-        /////////////////////////////////////////////
-        //Set up rules
-        /////////////////////////////////////////////
-
-        this.asteroidCreationRule = new AsteroidCreationRule(1920,1920,this.gameModel);
-        this.bulletRule = new BulletRule(this.gameModel);
 
         /////////////////////////////////////////////
         //Set up socket listener
@@ -169,7 +155,5 @@ export default class AsteroGame {
 
 
     update(): void {
-        this.asteroidCreationRule.update();
-        this.bulletRule.update();
     }
 }

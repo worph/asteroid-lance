@@ -1,11 +1,11 @@
 import {LancePhaserLinkComponent} from "./LancePhaserLinkComponent";
-import {LancePhysicNetComponent} from "../../lance/LancePhysicNetComponent";
 import {PhaserGraphicComponent} from "../../graphics/PhaserGraphicComponent";
+import LancePhysic2DObject from "asteroid-common/dist/lance/component/LancePhysic2DObject";
 
 export class LancePhaserLink {
     list: LancePhaserLinkComponent[] = [];
 
-    create(graphic: PhaserGraphicComponent, physic: LancePhysicNetComponent): LancePhaserLinkComponent {
+    create(graphic: PhaserGraphicComponent, physic: LancePhysic2DObject): LancePhaserLinkComponent {
         let lancePhaserLinkComponent = new LancePhaserLinkComponent(graphic, physic);
         this.list.push(lancePhaserLinkComponent);
         return lancePhaserLinkComponent;
@@ -17,7 +17,7 @@ export class LancePhaserLink {
 
     update() {
         this.list.forEach((value: LancePhaserLinkComponent) => {
-            let body = value.physic.body;
+            let body = value.physic;
             if (body) {
                 value.graphic.setPosition(body.position.x, body.position.y);
                 //value.graphic.setAngle(body.angle+90);//repere change for dynamic object
