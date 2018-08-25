@@ -9,6 +9,9 @@ import BulletRule from "./rule/BulletRule";
 import {PlayerConnexionRule} from "./rule/PlayerConnexionRule";
 import {ShipFactory} from "./object/ShipFactory";
 import {LanceNetworkEntity} from "./ecs/LanceNetworkEntity";
+import {AsteroidFactory} from "./object/AsteroidFactory";
+import {GenericObjectContainer} from "./component/GenericObjectContainer";
+import {BulletFactory} from "./object/BulletFactory";
 
 export default class LanceGameModel extends GameEngine {
     physicsEngine: any;
@@ -20,6 +23,8 @@ export default class LanceGameModel extends GameEngine {
     private bulletRule: BulletRule;
     private shipFactory: ShipFactory;
     private playerConnexionRule: PlayerConnexionRule;
+    private asteroidFactory: AsteroidFactory;
+    private bulletFactory: BulletFactory;
 
     constructor(options) {
         super(options);
@@ -27,13 +32,15 @@ export default class LanceGameModel extends GameEngine {
         this.physicsEngine.world.defaultContactMaterial.friction = 0;
 
         this.shipFactory = new ShipFactory(this);
+        this.bulletFactory = new BulletFactory(this);
+        this.asteroidFactory = new AsteroidFactory(this);
 
         /////////////////////////////////////////////
         //Set up rules
         /////////////////////////////////////////////
 
         //TODO reenable
-        //this.asteroidCreationRule = new AsteroidCreationRule(this.worldWidth, this.worldHeight, this);
+        this.asteroidCreationRule = new AsteroidCreationRule(this.worldWidth, this.worldHeight, this,this.asteroidFactory);
         //this.bulletRule = new BulletRule(this);
         this.playerConnexionRule = new PlayerConnexionRule(this,this.shipFactory);
 
@@ -45,6 +52,7 @@ export default class LanceGameModel extends GameEngine {
     registerClasses(serializer) {
         serializer.registerClass(DynamicObject);
         serializer.registerClass(LancePhysic2DObject);
+        serializer.registerClass(GenericObjectContainer);
         serializer.registerClass(LanceNetworkEntity);
     }
 
@@ -101,7 +109,13 @@ export default class LanceGameModel extends GameEngine {
         //TODO put this logic in an external class
         let gameEngine = this;
         super.processInput(inputData, playerId);
-        if (inputData.input == InputDefinition.ROTATE_RIGHT) {
+        if (inputData.input == InputDefinition.SHOOT) {
+            let options = inputData.options;
+            let obj = this.world.queryObject({
+                id: options.id,
+            });
+            this.bulletFactory.create(obj.position,obj.angle,obj.velocity);
+        }else if (inputData.input == InputDefinition.ROTATE_RIGHT) {
             let options = inputData.options;
             let obj = this.world.queryObject({
                 id: options.id,
@@ -144,7 +158,7 @@ export default class LanceGameModel extends GameEngine {
 
     update(): void {
         //TODO reenable
-        //this.asteroidCreationRule.update();
+        this.asteroidCreationRule.update();
         //this.bulletRule.update();
     }
 }

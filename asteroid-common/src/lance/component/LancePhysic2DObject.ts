@@ -3,7 +3,7 @@ import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {LanceNetworkComponent} from "../ecs/LanceNetworkComponent";
 import BaseTypes from 'lance-gg/es5/serialize/BaseTypes';
 
-interface DynamicObjectInterface {
+export interface DynamicObjectInterface {
     id: number,
     position: { x: number; y: number };
     velocity: { x: number; y: number };

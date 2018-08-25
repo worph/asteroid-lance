@@ -28,7 +28,11 @@ export class LanceNetworkEntity extends GameObject implements EntityInterface {
 
     addComponent(component: Component): void {
         this.component.push(component);
-        let type = component.getComponentType();//TODO find a btter mech
+        this.triggerCallback(component);
+    }
+
+    triggerCallback(component:Component):void{
+        let type = component.getComponentType();
         let callbackList = this.componentWaitting[type];
         if(callbackList != undefined){
             callbackList.forEach(value => {
@@ -38,10 +42,11 @@ export class LanceNetworkEntity extends GameObject implements EntityInterface {
         delete this.componentWaitting[type];
     }
 
-    onceComponentType(type:any,callback:(data:Component)=>void){
+    onceComponentType(type:any,callback:(data:Component)=>void):void{
         let componentByType = this.getComponentByType(type);
         if(componentByType){
-            return componentByType;
+            callback(componentByType);
+            return;
         }
         //setup listener
         let callbackList = this.componentWaitting[type];
@@ -55,7 +60,8 @@ export class LanceNetworkEntity extends GameObject implements EntityInterface {
     getComponentByType(type:any):Component{
         let ret = null;
         this.component.forEach((data)=>{
-            if(data instanceof type){
+            let typeOfData = data.getComponentType();
+            if(typeOfData===type){
                 ret = data;
             }
         });

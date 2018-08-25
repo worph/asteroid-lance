@@ -19,7 +19,7 @@ export class ShipFactory {
 
     create():EntityInterface {
         //create player ship
-        let eid = AssetIDGenerator.SHIP_PREFIX+idService.makeid(32);
+        let eid = AssetIDGenerator.generateAssetID(AssetIDGenerator.SHIP_PREFIX);
         let ship = new LanceNetworkEntity(this.gameModel,null,{
             entityId : eid
         });

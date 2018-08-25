@@ -2,6 +2,8 @@ import LanceGameModel from "../LanceGameModel";
 import LancePhysic2DObject from "../component/LancePhysic2DObject";
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {AssetIDGenerator} from "../const/AssetIDGenerator";
+import {AsteroidFactory} from "../object/AsteroidFactory";
+import {LanceNetworkEntity} from "../ecs/LanceNetworkEntity";
 
 let CONST = {
     ASTEROID_COUNT: 3,
@@ -45,33 +47,10 @@ export default class AsteroidCreationRule {
     constructor(
         private worldSizeX:number,
         private worldSizeY:number,
-        private gameModel:LanceGameModel) {
+        private gameModel:LanceGameModel,
+        private asteroidFactory:AsteroidFactory) {
         this.callback = (data) => {
-            let props = {
-                position: new TwoVector(data.position.x, data.position.y),
-                velocity: new TwoVector(data.velocity.x,data.velocity.y),
-                angle:data.rotation,//radian
-                angleVelocity:data.velocityAngular,
-                physic:{
-                    body:{
-                        mass: 0.1, damping: 0, angularDamping: 0
-                    },
-                    shape:{
-                        type:"circle",
-                        radius: data.radius,
-                        collisionGroup: 1,
-                        collisionMask: 1
-                    }
-                }
-            };
-            let asteroid = new LancePhysic2DObject(this.gameModel, null,props);
-            /*asteroid.assetId = AssetIDGenerator.generateAssetID(AssetIDGenerator.ASTEROID_PREFIX);
-            asteroid.setCustomData({
-                asteroidSizeOrder:data.sizeOrder,
-                asteroidSeed:data.asteroidSeed,
-                points:data.points
-            });*/
-            this.gameModel.addObjectToWorld(asteroid);
+            this.asteroidFactory.create(data);
         };
     }
 
@@ -80,11 +59,11 @@ export default class AsteroidCreationRule {
         let asteroidCount = 0;
         keys.forEach((key, index, array) => {
             let object = this.gameModel.world.objects[key];
-            if(object instanceof LancePhysic2DObject){
-                let asset = object as LancePhysic2DObject;
-                /*if(asset.assetId.startsWith(AssetIDGenerator.ASTEROID_PREFIX)){
+            if(object instanceof LanceNetworkEntity){
+                let asset = object as LanceNetworkEntity;
+                if(asset.entityId.startsWith(AssetIDGenerator.ASTEROID_PREFIX)){
                     asteroidCount++;
-                }*/
+                }
             }
         });
         if (asteroidCount === 0) {

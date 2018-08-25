@@ -1,5 +1,4 @@
-export default class Lance {
-    static Trace = class {
+export default class Trace{
         /**
          * Include all trace levels.
          * @memberof Trace
@@ -54,4 +53,3 @@ export default class Lance {
             return 1000;
         }
     }
-}

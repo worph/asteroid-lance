@@ -17,8 +17,10 @@ export class PlayerInputRule extends InputComponent{
             this.accelerate({x:100,y:0});
         });
         keymapper.action.on(KeyMapper.SHOOT,(data)=>{
-            //TODO put in model => sent shoot to client
             //bulletFactory.create({x:physic.body.position.x,y:physic.body.position.y},physic.body.angle,{x:physic.body.velocity.x,y:physic.body.velocity.y});
+            this.client.sendInput(InputDefinition.SHOOT, {
+                id:this.physicBodyId
+            });
         });
     }
 
