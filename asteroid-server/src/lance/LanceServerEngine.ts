@@ -1,12 +1,17 @@
 import ServerEngine from 'lance-gg/es5/ServerEngine';
-import DynamicObject from 'lance-gg/es5/serialize/DynamicObject';
-import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 
 import * as express from 'express';
+import AsteroidCreationRule from "../game/AsteroidCreationRule";
+
 
 export default class LanceServerEngine extends ServerEngine {
+    private asteroidCreationRule: AsteroidCreationRule;
+
     constructor(public expressApp,io,public gameEngine, inputOptions) {
         super(io.of('/lance'), gameEngine, inputOptions);
+        this.asteroidCreationRule = new AsteroidCreationRule(1920,1920,(position, velocity, rotation, velocityAngular, size, asteroidSeed) => {
+
+        });
         console.log("player constructor");
         //console.log(this);
         const router = express.Router();

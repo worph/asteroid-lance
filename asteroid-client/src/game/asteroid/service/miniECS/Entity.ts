@@ -1,5 +1,5 @@
 import {Component} from "./Component";
-import {Identified} from "./Identified";
+import {Identified} from "asteroid-common/dist/service/Identified";
 
 export class Entity implements Identified{
     constructor(public id: string) {

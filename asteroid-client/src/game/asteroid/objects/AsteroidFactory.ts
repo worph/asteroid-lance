@@ -1,7 +1,7 @@
 import {GameStates} from "../game/GameStates";
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {Entity} from "../service/miniECS/Entity";
-import LancePhysic2DObject from "../lance/shared/LancePhysic2DObject";
+import LancePhysic2DObject from "asteroid-common/dist/lance/LancePhysic2DObject";
 import {AsteroidGraphics} from "../graphics/AsteroidGraphics";
 
 export class AsteroidFactory {

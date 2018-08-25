@@ -1,8 +1,8 @@
 import {LancePhysicNetComponent} from "./LancePhysicNetComponent";
-import LanceGameModel from "./shared/LanceGameModel";
+import LanceGameModel from "asteroid-common/dist/lance/LanceGameModel";
 import LanceClientEngine from "./LanceGameModelControler";
-import {idService} from "../service/IDService";
-import LancePhysic2DObject from "./shared/LancePhysic2DObject";
+import {idService} from "asteroid-common/dist/service/IDService";
+import LancePhysic2DObject from "asteroid-common/dist/lance/LancePhysic2DObject";
 import {Service} from "../service/miniECS/Service";
 
 export class LanceAssetService implements Service{

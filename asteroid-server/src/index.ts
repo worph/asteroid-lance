@@ -7,10 +7,12 @@ import {createServer, Server} from 'http';
 import * as SocketIO from "socket.io"
 import * as cors from 'cors';
 import LanceServerEngine from "./lance/LanceServerEngine";
-import LanceGameModel from "./lance/shared/LanceGameModel";
+import LanceGameModel from "asteroid-common/dist/lance/LanceGameModel";
+import {Version} from "asteroid-common/dist/Version";
 
 ////////
 
+console.log("common-version : "+Version.VERSION);
 let expressApp = express();
 expressApp.use(cors());
 let httpServer: Server = createServer(expressApp);

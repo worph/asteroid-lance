@@ -3,6 +3,7 @@
 **/node_modules
 asteroid-client/build
 asteroid-server/dist
+asteroid-common/dist
 /asteroid-client/docker/www
 /asteroid-client/npm-debug.log
 /asteroid-server/*.log

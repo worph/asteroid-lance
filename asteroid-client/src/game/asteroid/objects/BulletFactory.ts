@@ -2,7 +2,7 @@ import {PlayerInputRule} from "../input/PlayerInputRule";
 import {GameStates} from "../game/GameStates";
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {Entity} from "../service/miniECS/Entity";
-import LanceAsset from "../lance/shared/LancePhysic2DObject";
+import LanceAsset from "asteroid-common/dist/lance/LancePhysic2DObject";
 import {BulletGraphics} from "../graphics/BulletGraphics";
 import {ShipGraphics} from "../graphics/ShipGraphics";
 import {ShipFactory} from "./ShipFactory";

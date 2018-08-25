@@ -1,6 +1,7 @@
 import {phaserReactService} from "../../phaser/PhaserReactService";
 import {GameStates} from "../game/GameStates";
 import {PhaserGraphicComponent} from "../graphics/PhaserGraphicComponent";
+import {Version} from "asteroid-common/dist/Version";
 
 declare var window: any;
 
@@ -20,6 +21,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     create(): void {
+        console.log("common-version : "+Version.VERSION);
         let parameters = phaserReactService.parameters;
         console.log("parameters : ", parameters);
         let apiServerAdd = parameters.apiServer;
@@ -56,7 +58,6 @@ export class GameScene extends Phaser.Scene {
                 this.cameras.main.startFollow(gcomp, true, 0.05, 0.05);    //  Set the camera bounds to be the size of the image
             });
         }
-
     }
 
     update(): void {

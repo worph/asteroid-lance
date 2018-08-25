@@ -1,6 +1,7 @@
+
 export class IDService {
 
-    makeid(length:number):string {
+    public makeid(length:number):string {
         let text = "";
         let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -10,7 +11,7 @@ export class IDService {
         return text;
     }
 
-    makeidAlpha(length:number):string {
+    public makeidAlpha(length:number):string {
         let text = "";
         let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 

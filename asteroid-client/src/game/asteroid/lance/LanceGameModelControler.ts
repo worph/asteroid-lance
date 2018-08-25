@@ -1,9 +1,9 @@
 
 import ClientEngine from 'lance-gg/es5/ClientEngine';
 import LanceRenderer from "./LanceRenderer";
-import InputDefinition from "./shared/InputDefinition";
+import InputDefinition from "asteroid-common/dist/lance/InputDefinition";
 import {EventEmitter} from 'eventemitter3';
-import LanceAsset from "./shared/LancePhysic2DObject";
+import LanceAsset from "asteroid-common/dist/lance/LancePhysic2DObject";
 import {ShipFactory} from "../objects/ShipFactory";
 import {BulletFactory} from "../objects/BulletFactory";
 
@@ -25,16 +25,14 @@ export default class LanceGameModelControler extends ClientEngine {
         super.start();
         this.gameEngine.on("objectAdded",(obj:any)=>{
             if(obj instanceof LanceAsset) {
-                if(obj.id <1000000) {//we ignore temporary objects
-                    if (this.waitingObjects[obj.assetId]) {
-                        this.eventEmitter.emit(obj.assetId, obj);
-                    } else if (this.shipFactory.isValidNetBody(obj)) {
-                        this.shipFactory.createFromNetwork(obj);
-                    } else if (this.bulletFactory.isValidNetBody(obj)) {
-                        this.bulletFactory.createFromNetwork(obj);
-                    } else {
-                        console.error("unknown object 1");
-                    }
+                if (this.waitingObjects[obj.assetId]) {
+                    this.eventEmitter.emit(obj.assetId, obj);
+                } else if (this.shipFactory.isValidNetBody(obj)) {
+                    this.shipFactory.createFromNetwork(obj);
+                } else if (this.bulletFactory.isValidNetBody(obj)) {
+                    this.bulletFactory.createFromNetwork(obj);
+                } else {
+                    console.error("unknown object 1");
                 }
             }else{
                 console.error("unknown object 2");

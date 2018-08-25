@@ -1,5 +1,5 @@
 import Renderer from 'lance-gg/es5/render/Renderer';
-import LanceGameModel from "./shared/LanceGameModel";
+import LanceGameModel from "asteroid-common/dist/lance/LanceGameModel";
 import LanceClientEngine from "./LanceGameModelControler";
 
 export default class LanceRenderer extends Renderer {

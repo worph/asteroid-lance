@@ -1,8 +1,7 @@
 {
-  "name": "asteroid-server",
+  "name": "asteroid-common",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "private": true,
   "scripts": {
     "exec": "node dist/",
@@ -17,14 +16,9 @@
   "license": "",
   "dependencies": {
     "@types/node": "7.0.22",
-    "cors": "^2.8.4",
     "eventemitter3": "^3.1.0",
-    "express": "4.15.3",
     "lance-gg": "^3.0.1",
-    "nodemon": "1.11.0",
-    "phaser": "3.10.1",
-    "socket.io": "^2.1.0",
-    "asteroid-common": "file:../asteroid-common"
+    "nodemon": "1.11.0"
   },
   "devDependencies": {
     "@types/mocha": "2.2.41",

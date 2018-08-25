@@ -1,6 +1,6 @@
 import {Component} from "../service/miniECS/Component";
-import LanceAsset from "./shared/LancePhysic2DObject";
-import InputDefinition from "./shared/InputDefinition";
+import LanceAsset from "asteroid-common/dist/lance/LancePhysic2DObject";
+import InputDefinition from "asteroid-common/dist/lance/InputDefinition";
 import LanceClientEngine from "./LanceGameModelControler";
 
 export class LancePhysicNetComponent implements Component{

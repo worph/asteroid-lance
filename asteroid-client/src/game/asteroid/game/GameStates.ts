@@ -1,12 +1,12 @@
 import NetworkGameRules from "./NetworkGameRules";
-import LanceGameModel from "../lance/shared/LanceGameModel";
+import LanceGameModel from "asteroid-common/dist/lance/LanceGameModel";
 import LanceClientEngine from "../lance/LanceGameModelControler";
 import {MiniECS} from "../service/miniECS/MiniECS";
 import {LanceAssetService} from "../lance/LanceAssetService";
 import {LancePhaserLink} from "../service/lancePhaserLink/LancePhaserLink";
 import {KeyMapper} from "../input/KeyMapper";
 import {ShipFactory} from "../objects/ShipFactory";
-import Lance from "../lance/shared/Lance";
+import Lance from "asteroid-common/dist/lance/Lance";
 import {BulletFactory} from "../objects/BulletFactory";
 import {AsteroidFactory} from "../objects/AsteroidFactory";
 
