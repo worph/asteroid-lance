@@ -6,6 +6,7 @@ import {EventEmitter} from 'eventemitter3';
 import LanceAsset from "asteroid-common/dist/lance/LancePhysic2DObject";
 import {ShipFactory} from "../objects/ShipFactory";
 import {BulletFactory} from "../objects/BulletFactory";
+import {AsteroidFactory} from "../objects/AsteroidFactory";
 
 export interface ObjectCreationData{
     assetId:string,
@@ -17,7 +18,7 @@ export default class LanceGameModelControler extends ClientEngine {
     eventEmitter = new EventEmitter();
     waitingObjects: {[id:string]:boolean} = {};//hashset
 
-    constructor(public gameEngine, options,private shipFactory:ShipFactory,private bulletFactory:BulletFactory) {
+    constructor(public gameEngine, options,private shipFactory:ShipFactory,private bulletFactory:BulletFactory,private asteroidFactory:AsteroidFactory) {
         super(gameEngine, options, LanceRenderer);
     }
 
@@ -31,11 +32,13 @@ export default class LanceGameModelControler extends ClientEngine {
                     this.shipFactory.createFromNetwork(obj);
                 } else if (this.bulletFactory.isValidNetBody(obj)) {
                     this.bulletFactory.createFromNetwork(obj);
+                } else if (this.asteroidFactory.isValidNetBody(obj)) {
+                    this.asteroidFactory.createFromNetwork(obj);
                 } else {
-                    console.error("unknown object 1");
+                    console.error("unknown asset : "+obj.assetId);
                 }
             }else{
-                console.error("unknown object 2");
+                console.error("unknown object");
             }
         });
     }

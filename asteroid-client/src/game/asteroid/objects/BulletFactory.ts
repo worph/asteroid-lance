@@ -4,11 +4,10 @@ import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {Entity} from "../service/miniECS/Entity";
 import LanceAsset from "asteroid-common/dist/lance/LancePhysic2DObject";
 import {BulletGraphics} from "../graphics/BulletGraphics";
-import {ShipGraphics} from "../graphics/ShipGraphics";
 import {ShipFactory} from "./ShipFactory";
+import {AssetIDGenerator} from "asteroid-common/dist/lance/AssetIDGenerator";
 
 export class BulletFactory {
-    public static readonly PREFIX:string = "bullet";
     ids: {[id:string]:any} = {};//hashset
     static readonly CONST:{
         SIZE_RADIUS:number
@@ -20,7 +19,7 @@ export class BulletFactory {
     }
 
     isValidNetBody(netBody:LanceAsset):boolean{
-        return netBody.assetId.startsWith(BulletFactory.PREFIX);
+        return netBody.assetId.startsWith(AssetIDGenerator.BULLET_PREFIX);
     }
     checkAndAddId(id:string){
         if(!this.ids[id]) {
@@ -78,7 +77,7 @@ export class BulletFactory {
                     collisionMask: 1
                 }
             }
-        },BulletFactory.PREFIX);
+        },AssetIDGenerator.BULLET_PREFIX);
         this.checkAndAddId(lancePhysicNetComponent.assetId);
         return this.internalCreateItem(lancePhysicNetComponent,position.x+positionUpdate.x,position.y+positionUpdate.y);
     }

@@ -5,9 +5,9 @@ import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {Entity} from "../service/miniECS/Entity";
 import LanceAsset from "asteroid-common/dist/lance/LancePhysic2DObject";
 import {BulletFactory} from "./BulletFactory";
+import {AssetIDGenerator} from "asteroid-common/dist/lance/AssetIDGenerator";
 
 export class ShipFactory {
-    public static readonly PREFIX:string = "ship";
     shipIds: {[id:string]:any} = {};//hashset
     static readonly CONST:{
         SIZE_RADIUS:number
@@ -19,7 +19,7 @@ export class ShipFactory {
     }
 
     isValidNetBody(netBody:LanceAsset):boolean{
-        return netBody.assetId.startsWith(ShipFactory.PREFIX);
+        return netBody.assetId.startsWith(AssetIDGenerator.SHIP_PREFIX);
     }
     checkAndAddShipId(id:string){
         if(!this.shipIds[id]) {
@@ -70,7 +70,7 @@ export class ShipFactory {
                     collisionMask: 1
                 }
             }
-        },ShipFactory.PREFIX);
+        },AssetIDGenerator.SHIP_PREFIX);
         this.checkAndAddShipId(lancePhysicNetComponent.assetId);
         let lancePhaserLinkComponent = this.networkGameState.lancePhaserLink.create(shipGraphics, lancePhysicNetComponent);
         let playerInputRule = new PlayerInputRule(this.networkGameState.keyMapper, lancePhysicNetComponent,this.bulletFactory);

@@ -7,7 +7,7 @@ import {WallMaker} from "./WallMaker";
 
 export default class LanceGameModel extends GameEngine{
     physicsEngine: any;
-    private world: any;
+    world: any;
 
     constructor(options) {
         super(options);

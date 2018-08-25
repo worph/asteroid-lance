@@ -65,7 +65,7 @@ export class GameStates {
 
             // create a client engine and a game engine
             this.gameModel = new LanceGameModel(options);
-            this.gameModelControler = new LanceClientEngine(this.gameModel, options,this.shipFactory,this.bulletFactory);
+            this.gameModelControler = new LanceClientEngine(this.gameModel, options,this.shipFactory,this.bulletFactory,this.asteroidFactory);
             this.lanceService = new LanceAssetService(this.gameModel, this.gameModelControler);
             this.lancePhaserLink = new LancePhaserLink();
             this.miniECS = new MiniECS();

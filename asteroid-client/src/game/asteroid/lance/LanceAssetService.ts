@@ -4,6 +4,7 @@ import LanceClientEngine from "./LanceGameModelControler";
 import {idService} from "asteroid-common/dist/service/IDService";
 import LancePhysic2DObject from "asteroid-common/dist/lance/LancePhysic2DObject";
 import {Service} from "../service/miniECS/Service";
+import {AssetIDGenerator} from "asteroid-common/dist/lance/AssetIDGenerator";
 
 export class LanceAssetService implements Service{
     constructor(public gameEngine:LanceGameModel,public clientEngine:LanceClientEngine){
@@ -13,18 +14,20 @@ export class LanceAssetService implements Service{
         let lancePhysicNetComponent = new LancePhysicNetComponent();
         lancePhysicNetComponent.client = this.clientEngine;
         lancePhysicNetComponent.body = value;
+        lancePhysicNetComponent.assetId = lancePhysicNetComponent.body.assetId;
         return lancePhysicNetComponent;
     }
 
-    create(props:any,prefixId:string = "none"):LancePhysicNetComponent{
+    create(props:any,customData:any,prefixId:string = "none"):LancePhysicNetComponent{
         let lancePhysicNetComponent = new LancePhysicNetComponent();
-        lancePhysicNetComponent.assetId = prefixId+"/"+idService.makeidAlpha(32);
+        lancePhysicNetComponent.assetId = AssetIDGenerator.generateAssetID(prefixId);
         lancePhysicNetComponent.client = this.clientEngine;
         this.clientEngine.requestObjectCreation({
             assetId:lancePhysicNetComponent.assetId,
             props:props
         },(value:LancePhysic2DObject) => {
             lancePhysicNetComponent.body = value;
+            lancePhysicNetComponent.body.setCustomData(customData);
         });
         return lancePhysicNetComponent;
     }

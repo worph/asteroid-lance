@@ -7,20 +7,34 @@ interface DynamicObjectInterface {
     position: { x: number; y: number };
     velocity: { x: number; y: number };
     mass:number,
+    angle: number,
     physicsObj:any
 }
 
 export default class LancePhysic2DObject extends PhysicalObject2D implements DynamicObjectInterface{
-    velocity: { x: number; y: number };
-    mass: number;
-    physicsObj: any;
+    //DynamicObjectInterface
     id: number;
     position: { x: number; y: number };
+    velocity: { x: number; y: number };
+    mass: number;
     angle: number;
+    physicsObj: any;
+    //
+
     assetId:string;
+    private customDataString:string="{}";
+
     constructor(private gameEngine,private option, public props){
-        //do not toutch this constructor it is needed for serialisation
+        //do not touch this constructor it is needed for serialisation
         super(gameEngine, option, props);
+    }
+
+    setCustomData(object:any):void{
+        this.customDataString = JSON.stringify(object);
+    }
+
+    getCustomData():any{
+        return JSON.parse(this.customDataString);
     }
 
     // on add-to-world, create a physics body
@@ -74,7 +88,8 @@ export default class LancePhysic2DObject extends PhysicalObject2D implements Dyn
 
     static get netScheme() {
         return Object.assign({
-            assetId: { type: BaseTypes.TYPES.STRING}
+            assetId: { type: BaseTypes.TYPES.STRING},
+            customDataString: { type: BaseTypes.TYPES.STRING}
         }, super.netScheme);
     }
 

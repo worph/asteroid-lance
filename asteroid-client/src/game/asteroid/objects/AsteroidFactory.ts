@@ -3,16 +3,17 @@ import TwoVector from 'lance-gg/es5/serialize/TwoVector';
 import {Entity} from "../service/miniECS/Entity";
 import LancePhysic2DObject from "asteroid-common/dist/lance/LancePhysic2DObject";
 import {AsteroidGraphics} from "../graphics/AsteroidGraphics";
+import {AssetIDGenerator} from "asteroid-common/dist/lance/AssetIDGenerator";
+import {LancePhysicNetComponent} from "../lance/LancePhysicNetComponent";
 
 export class AsteroidFactory {
-    public static readonly PREFIX:string = "asteroid";
     ids: {[id:string]:any} = {};//hashset
 
     constructor(public networkGameState: GameStates, public scene: Phaser.Scene) {
     }
 
     isValidNetBody(netBody:LancePhysic2DObject):boolean{
-        return netBody.assetId.startsWith(AsteroidFactory.PREFIX);
+        return netBody.assetId.startsWith(AssetIDGenerator.ASTEROID_PREFIX);
     }
     checkAndAddId(id:string){
         if(!this.ids[id]) {
@@ -27,15 +28,16 @@ export class AsteroidFactory {
         }
         this.checkAndAddId(netBody.assetId);
         let lancePhysicNetComponent = this.networkGameState.lanceService.createFromNetwork(netBody);
-        return this.internalCreateItem(lancePhysicNetComponent,0,0,netBody.props.customData.asteroidSizeRadius);
+        return this.internalCreateItem(lancePhysicNetComponent,0,0);
     }
 
-    internalCreateItem(lancePhysicNetComponent,x:number,y:number,sizeRadius:number){
+    internalCreateItem(lancePhysicNetComponent:LancePhysicNetComponent,x:number,y:number){
         let item = this.networkGameState.miniECS.createNewEntity();
+        let customData = lancePhysicNetComponent.body.getCustomData();
         let graphics = new AsteroidGraphics({
             scene: this.scene,
             opt: {}
-        },sizeRadius);
+        },customData.radius,customData.points);
         let lancePhaserLinkComponent = this.networkGameState.lancePhaserLink.create(graphics, lancePhysicNetComponent);
         item.component.push(graphics);
         item.component.push(lancePhysicNetComponent);
@@ -59,12 +61,14 @@ export class AsteroidFactory {
                     collisionGroup: 1,
                     collisionMask: 1
                 }
-            },
-            customData:{
-                asteroidSizeRadius:sizeRadius
             }
-        },AsteroidFactory.PREFIX);
+        },AssetIDGenerator.ASTEROID_PREFIX);
         this.checkAndAddId(lancePhysicNetComponent.assetId);
-        return this.internalCreateItem(lancePhysicNetComponent,position.x,position.y,sizeRadius);
+        lancePhysicNetComponent.body.setCustomData({
+            asteroidSizeOrder:0,
+            asteroidSeed:0,
+            points:[]
+        });
+        return this.internalCreateItem(lancePhysicNetComponent,position.x,position.y);
     }
 }

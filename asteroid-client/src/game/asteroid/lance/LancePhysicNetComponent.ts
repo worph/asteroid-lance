@@ -1,11 +1,11 @@
 import {Component} from "../service/miniECS/Component";
-import LanceAsset from "asteroid-common/dist/lance/LancePhysic2DObject";
+import LancePhysic2DObject from "asteroid-common/dist/lance/LancePhysic2DObject";
 import InputDefinition from "asteroid-common/dist/lance/InputDefinition";
 import LanceClientEngine from "./LanceGameModelControler";
 
 export class LancePhysicNetComponent implements Component{
     assetId:string;
-    body : LanceAsset;
+    body : LancePhysic2DObject;
     client:LanceClientEngine;
 
     rotateRight(speed:number){

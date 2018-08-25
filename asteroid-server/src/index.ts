@@ -48,6 +48,6 @@ broadcastService.start(io);
 ////////
 
 let asteroGame: AsteroGame = new AsteroGame();
-asteroGame.start(io,expressApp);
+asteroGame.start(io,expressApp,gameModel);
 
 ////////
