@@ -1,7 +1,7 @@
 import LanceGameModel from "../LanceGameModel";
 import LancePhysic2DObject from "../component/LancePhysic2DObject";
 import TwoVector from 'lance-gg/es5/serialize/TwoVector';
-import {AssetIDGenerator} from "../const/AssetIDGenerator";
+import {AssetIDGenerator} from "../AssetIDGenerator";
 import {AsteroidFactory} from "../object/AsteroidFactory";
 import {LanceNetworkEntity} from "../ecs/LanceNetworkEntity";
 

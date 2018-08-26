@@ -1,7 +1,7 @@
 import NetworkGameRules from "./NetworkGameRules";
 import LanceGameModel from "asteroid-common/dist/lance/LanceGameModel";
 import LanceClientEngine from "../lance/LanceGameModelControler";
-import {MiniECS} from "asteroid-common/dist/miniECS/MiniECS";
+import {ECS} from "asteroid-common/dist/miniECS/ECS";
 import {LancePhaserLink} from "../service/lancePhaserLink/LancePhaserLink";
 import {KeyMapper} from "../input/KeyMapper";
 import Trace from "asteroid-common/dist/lance/const/Trace";
@@ -17,7 +17,7 @@ export class GameStates {
     ////////////////////////////////////
     //ECS
     ////////////////////////////////////
-    ecs: MiniECS;
+    ecs: ECS;
     lancePhaserLink: LancePhaserLink;//lance phaser link ECS service
     keyMapper: KeyMapper; // input ECS service
 
@@ -51,7 +51,7 @@ export class GameStates {
             this.gameModel = new LanceGameModel(options);
             this.lancePhaserLink = new LancePhaserLink();
             this.keyMapper = new KeyMapper(this.scene);
-            this.ecs = new MiniECS();
+            this.ecs = new ECS();
 
             this.gameModelControler = new LanceClientEngine(this.gameModel, options,this.scene,this.lancePhaserLink,this.keyMapper,this.ecs);
 

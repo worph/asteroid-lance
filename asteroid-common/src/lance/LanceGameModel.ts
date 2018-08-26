@@ -12,6 +12,9 @@ import {LanceNetworkEntity} from "./ecs/LanceNetworkEntity";
 import {AsteroidFactory} from "./object/AsteroidFactory";
 import {GenericObjectContainer} from "./component/GenericObjectContainer";
 import {BulletFactory} from "./object/BulletFactory";
+import {SyncRandomNumberGenerator} from "./SyncRandomNumberGenerator";
+import {AssetIDGenerator} from "./AssetIDGenerator";
+import {ShipDataModel} from "./component/ShipDataModel";
 
 export default class LanceGameModel extends GameEngine {
     physicsEngine: any;
@@ -25,27 +28,46 @@ export default class LanceGameModel extends GameEngine {
     private playerConnexionRule: PlayerConnexionRule;
     private asteroidFactory: AsteroidFactory;
     private bulletFactory: BulletFactory;
+    private syncRandomNumberGenerator: SyncRandomNumberGenerator;
+    private assetIDGenerator: AssetIDGenerator;
 
     constructor(options) {
         super(options);
         this.physicsEngine = new P2PhysicsEngine({gameEngine: this});
         this.physicsEngine.world.defaultContactMaterial.friction = 0;
 
-        this.shipFactory = new ShipFactory(this);
-        this.bulletFactory = new BulletFactory(this);
-        this.asteroidFactory = new AsteroidFactory(this);
+
+        this.syncRandomNumberGenerator = new SyncRandomNumberGenerator();
+        this.assetIDGenerator = new AssetIDGenerator(this.syncRandomNumberGenerator);
+
+        /////////////////////////////////////////////
+        //Set up factories
+        /////////////////////////////////////////////
+        this.shipFactory = new ShipFactory(this,this.assetIDGenerator);
+        this.bulletFactory = new BulletFactory(this,this.assetIDGenerator);
+        this.asteroidFactory = new AsteroidFactory(this,this.assetIDGenerator);
 
         /////////////////////////////////////////////
         //Set up rules
         /////////////////////////////////////////////
 
         //TODO reenable
-        this.asteroidCreationRule = new AsteroidCreationRule(this.worldWidth, this.worldHeight, this,this.asteroidFactory);
+        //this.asteroidCreationRule = new AsteroidCreationRule(this.worldWidth, this.worldHeight, this,this.asteroidFactory);
         //this.bulletRule = new BulletRule(this);
         this.playerConnexionRule = new PlayerConnexionRule(this,this.shipFactory);
 
-        this.on("postStep",()=>{
+
+        /////////////////////////////////////////////
+        //Set up update loop
+        /////////////////////////////////////////////
+
+        this.on("preStep",(data:{step:number,isReenact:boolean})=>{
+            this.syncRandomNumberGenerator.update(data.step);//TODO is this usefull since the true random is defined by process input.
+        });
+
+        this.on("postStep",(data:{step:number,isReenact:boolean})=>{
             this.update();
+            //console.log(this.syncRandomNumberGenerator.getRandomAPI().integer(1, 100) + "/" + data.step + " / "+ data.isReenact);
         });
     }
 
@@ -54,6 +76,7 @@ export default class LanceGameModel extends GameEngine {
         serializer.registerClass(LancePhysic2DObject);
         serializer.registerClass(GenericObjectContainer);
         serializer.registerClass(LanceNetworkEntity);
+        serializer.registerClass(ShipDataModel);
     }
 
     initWorld() {
@@ -106,10 +129,12 @@ export default class LanceGameModel extends GameEngine {
     };
 
     processInput(inputData, playerId, isServer) {
+        this.syncRandomNumberGenerator.update(inputData.step+inputData.messageIndex);
         //TODO put this logic in an external class
         let gameEngine = this;
         super.processInput(inputData, playerId);
         if (inputData.input == InputDefinition.SHOOT) {
+            console.log("input data steep : "+inputData.step);
             let options = inputData.options;
             let obj = this.world.queryObject({
                 id: options.id,
@@ -148,17 +173,17 @@ export default class LanceGameModel extends GameEngine {
         super.addObjectToWorld(item);
     }
 
-    on(event: string, callback: (data: any) => void) {
+    on(event: string, callback:(data:any)=>void) {
         super.on(event, callback)
     }
 
-    once(event: string, callback: (data: any) => void) {
+    once(event: string, callback:(data:any)=>void) {
         super.once(event, callback)
     }
 
     update(): void {
         //TODO reenable
-        this.asteroidCreationRule.update();
+        //this.asteroidCreationRule.update();
         //this.bulletRule.update();
     }
 }

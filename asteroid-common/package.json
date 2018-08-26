@@ -20,7 +20,8 @@
     "@types/node": "7.0.22",
     "eventemitter3": "^3.1.0",
     "lance-gg": "^3.0.1",
-    "nodemon": "1.11.0"
+    "nodemon": "1.11.0",
+    "random-js": "^1.0.8"
   },
   "devDependencies": {
     "@types/mocha": "2.2.41",

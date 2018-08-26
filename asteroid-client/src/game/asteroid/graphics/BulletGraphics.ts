@@ -1,5 +1,4 @@
 import {PhaserGraphicComponent} from "./PhaserGraphicComponent";
-import {BulletFactory} from "../objects/BulletFactory";
 
 export class BulletGraphics extends PhaserGraphicComponent {
     private colors: number[];

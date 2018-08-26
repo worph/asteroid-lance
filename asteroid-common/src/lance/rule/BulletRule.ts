@@ -1,7 +1,7 @@
 
 import LanceGameModel from "../LanceGameModel";
 import LancePhysic2DObject from "../component/LancePhysic2DObject";
-import {AssetIDGenerator} from "../const/AssetIDGenerator";
+import {AssetIDGenerator} from "../AssetIDGenerator";
 
 export default class BulletRule {
 

@@ -1,5 +1,4 @@
 import GameObject from 'lance-gg/es5/serialize/GameObject';
-import {Component} from "../../miniECS/Component";
 import BaseTypes from 'lance-gg/es5/serialize/BaseTypes';
 import {LanceNetworkComponent} from "../ecs/LanceNetworkComponent";
 
